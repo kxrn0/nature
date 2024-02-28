@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    canvas {
+      border: 1px solid
+    }
+  </style>
+</head>
+
+<body>
+  <canvas width="600" height="600"></canvas>
+  <script>
+    const canvas = document.querySelector("canvas");
+    const context = canvas.getContext("2d");
+    const walkers = []
+
+    function random(min, max) {
+      return Math.random() * (max - min) + min;
+    }
+
+    function Walker(canvas) {
+      this.canvas = canvas;
+      this.context = canvas.getContext("2d");
+      this.x = random(0, canvas.width);
+      this.y = random(0, canvas.height);
+
+
+      this.move = function () {
+        const x = this.x + random(-1, 1);
+        const y = this.y + random(-1, 1);
+
+        if (0 < x && x < this.canvas.width)
+          this.x = x
+        if (0 < y && y < this.canvas.height)
+          this.y = y
+      }
+
+      this.draw = function () {
+        this.context.beginPath();
+        this.context.fillStyle = "red";
+        this.context.arc(this.x, this.y, 1, 0, Math.PI * 2);
+        this.context.fill();
+      }
+
+      this.update = function () {
+        this.move();
+        this.draw();
+      }
+    }
+
+    function anime(timestamp) {
+
+      context.fillStyle = "#12fe8907";
+      context.fillRect(0, 0, canvas.width, canvas.height);
+      for (let walker of walkers)
+        walker.update();
+
+      requestAnimationFrame(anime);
+    }
+
+    function init() {
+      for (let i = 0; i < 10; i++)
+        walkers.push(new Walker(canvas));
+
+      requestAnimationFrame(anime)
+    }
+
+    init();
+  </script>
+</body>
+
+</html>
