@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vite + TS</title>
+</head>
+
+<body>
+  <canvas width="600" height="600"></canvas>
+  <br />
+  <button>clear canvas</button>
+  <br />
+  <label>
+    <span>distance</span>
+    <input type="range" min="1" max="100" value="20">
+  </label>
+  <br />
+  <label>
+    <span>red</span>
+    <input type="range" min="0" max="255" id="red" value="100">
+  </label>
+  <br />
+  <label>
+    <span>green</span>
+    <input type="range" min="0" max="255" id="green" value="150">
+  </label>
+  <br />
+  <label>
+    <span>blue</span>
+    <input type="range" min="0" max="255" id="blue" value="200">
+  </label>
+  <br />
+  <label>
+    <span>color deviation</span>
+    <input type="range" min="1" max="100" id="color" value="10">
+  </label>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+
+</html>
