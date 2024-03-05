@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vite App</title>
+</head>
+
+<body>
+  <canvas width="900" height="900" id="canvas"></canvas>
+  <div>
+    <button id="add-walker">add walker</button>
+    <button id="reset-canvas">reset</button>
+  </div>
+  <label>
+    <span>function</span>
+    <input type="text" value="50*e^((-x^2)/500)" id="fun" />
+  </label>
+  <label>
+    <span>Cond (&lt; or &gt;)</span>
+    <input type="text" value="<" id="cond">
+  </label>
+  <label>
+    <span>min</span>
+    <input type="number" value="-50" id="min" />
+  </label>
+  <label>
+    <span>max</span>
+    <input type="number" value="50" id="max" />
+  </label>
+  <script type="module" src="/main.js"></script>
+</body>
+
+</html>
