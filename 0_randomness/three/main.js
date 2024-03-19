@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import create_cube from "./create_cube";
-import "./style.css";
 import random from "./random";
+import "./style.css";
 
 const canvas = document.querySelector("canvas");
 const renderer = new THREE.WebGLRenderer({ antialias: true, canvas });
