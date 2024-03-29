@@ -49,3 +49,7 @@ I'll set up the loop first.
 I've confirmed that delta time can be used safely.
 
 Currently the movers and attractors seem to be working properly, I'll now move to collisions.
+
+The collisions have been handled.
+
+How do I move an attractor? I need a variable to tell when I'm moving an attractor. One for indicating when a click on the screen is supposed to start a drag, and not add another entity. I can use a boolean, `isMoving` for the second case, and an object `currentTractor` for the second one. When a `mousedown` is detected, if it happens inside of an attractor, `currentTractor` will be set to that attractor. Then, on `mousemove` if `currentTractor` is not null, the position of the attractor referenced by `currentTractor` will be updated. On `mouseup` `currentTractor` will be set to null.
