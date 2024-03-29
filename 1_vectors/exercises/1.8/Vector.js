@@ -40,3 +40,9 @@ export default function Vector(x, y) {
     this.scale(length);
   };
 }
+
+Vector.add = (u, v) => new Vector(u.x + v.x, u.y + v.y);
+
+Vector.dot = (u, v) => u.x * v.x + u.y * v.y;
+
+Vector.scale = (v, n) => v.copy().scale(n);
