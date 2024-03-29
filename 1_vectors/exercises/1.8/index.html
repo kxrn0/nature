@@ -9,18 +9,22 @@
 </head>
 
 <body>
-  <label for="me">
-    <span>add mover</span>
-    <input type="radio" name="me">
-  </label>
-  <label for="you">
-    <span>add attractor</span>
-    <input type="radio" name="you" />
-  </label>
-  <label for="check">
-    <span>move attractors</span>
-    <input type="checkbox" />
-  </label>
+  <div class="controls">
+    <fieldset class="radios">
+      <label>
+        <span>add mover</span>
+        <input type="radio" name="radio" checked id="mover">
+      </label>
+      <label>
+        <span>add attractor</span>
+        <input type="radio" name="radio" id="attractor" />
+      </label>
+    </fieldset>
+    <label>
+      <span>move attractors</span>
+      <input type="checkbox" name="check" />
+    </label>
+  </div>
   <canvas width="1500" height="900"></canvas>
   <script type="module" src="/main.js"></script>
 </body>

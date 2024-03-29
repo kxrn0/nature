@@ -11,4 +11,14 @@ body {
   display: grid;
   place-items: center;
   align-content: center;
+  position: relative;
+}
+
+.controls {
+  background-color: #ccffcc99;
+  position: absolute;
+  top: 50px;
+  right: 50px;
+  display: flex;
+  flex-direction: column;
 }
