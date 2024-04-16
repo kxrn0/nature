@@ -7,8 +7,7 @@ export default function Mover(
   mass,
   radius,
   color,
-  mu,
-  boundaries
+  mu
 ) {
   this.canvas = canvas;
   this.context = canvas.getContext("2d");
@@ -20,15 +19,13 @@ export default function Mover(
   this.color = color;
   this.mu = mu;
 
-  if (boundaries) this.boundaries = boundaries;
-  else
-    this.boundaries = {
-      x: { min: radius, max: canvas.width - radius },
-      y: { min: radius, max: canvas.height - radius },
-    };
+  this.boundaries = {
+    x: { min: radius, max: canvas.width - radius },
+    y: { min: radius, max: canvas.height - radius },
+  };
 
-  this.apply_force = function (force, dt) {
-    const updated = force.copy().scale(dt / this.mass);
+  this.apply_force = function (force) {
+    const updated = force.copy().scale(1 / this.mass);
 
     this.acceleration.add(updated);
   };
@@ -56,8 +53,9 @@ export default function Mover(
   this.move = function () {
     this.velocity.add(this.acceleration);
     this.position.add(this.velocity);
-    this.velocity.scale(0.99);
     this.acceleration.scale(0);
+
+    this.check_edges();
   };
 
   this.draw = function () {

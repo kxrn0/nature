@@ -3,11 +3,11 @@ export default function Fric(context, position, radius) {
   this.position = position;
   this.radius = radius;
 
-  this.fric = function (mover, dt) {
+  this.fric = function (mover) {
     const mag = -mover.mu;
     const friction = mover.velocity.copy().normalize().scale(mag);
 
-    mover.apply_force(friction, dt);
+    mover.apply_force(friction);
   };
 
   this.draw = function () {
@@ -20,5 +20,6 @@ export default function Fric(context, position, radius) {
       0,
       Math.PI * 2
     );
+    this.context.fill();
   };
 }
