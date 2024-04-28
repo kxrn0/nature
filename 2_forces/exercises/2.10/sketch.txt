@@ -1,0 +1,9 @@
+I'll draw a ball in the canvas. The ball's x position will be drawn as if it were static, while the y position will show the correct value.
+
+How would this work? A plane has to travel horizontally at a high speed for lift induced drag to occur. With the very simplified model we are working with I think we first need to calculate the drag vector with the given formula. Our body is moving horizontally with a velocity (xh, 0). With the given formula we get a drag vector of (xd, 0), but we need to end up with a vector of the form (xl, yl), with yl > 0, so we need to somehow arrive there from (xd, 0).
+
+Rotation is key to for drag induced lift.
+
+Assume a tilted box moving horizontally at incredibly high speed. It's velocity in a vacuum is effectively v = (xh, 0). If we add air there should be some force d such that v + d = (xl, yl), with yl > 0, so there would be lift.
+
+How do we find d? I don't know, but if the box is tilted by t degrees, to the box the force will look like it's coming at an angle. Fuck it, actually understanding this would take a while, so I'll just do whatever. The angle I'll assume the vector is comming at will be t + PI / 2.

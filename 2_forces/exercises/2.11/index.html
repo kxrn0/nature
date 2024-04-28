@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vite App</title>
+</head>
+
+<body>
+  <canvas></canvas>
+  <div class="controls">
+    <label>
+      <span>add mover</span>
+      <input type="radio" checked name="raido" id="add">
+    </label>
+    <label>
+      <span>move attractor</span>
+      <input type="radio" name="raido" id="move">
+    </label>
+    <label>
+      <span>mover radius</span>
+      <input type="range" min="5" max="50" value="10" id="range">
+    </label>
+  </div>
+  <script type="module" src="/main.js"></script>
+</body>
+
+</html>
