@@ -2,7 +2,6 @@ import Attractor from "./Attractor";
 import Mover from "./Mover";
 import Vector from "./Vector";
 import create_polygon from "./create_polygon";
-import rotate_point from "./rotate_point";
 import "./style.css";
 
 const canvas = document.querySelector("canvas");
@@ -47,11 +46,9 @@ function init() {
     (point) => new Attractor(context, Vector.from(point), 1, "white")
   );
 
-  movers = create_polygon(1000, 100, center).map(
+  movers = create_polygon(500, 100, center).map(
     (point) => new Mover(canvas, Vector.from(point), new Vector(0, 0), 1, "red")
   );
-
-  console.log(tractors);
 
   requestAnimationFrame(anime);
 }

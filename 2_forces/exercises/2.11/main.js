@@ -1,9 +1,9 @@
-import "./style.css";
 import Mover from "./Mover";
 import Vector from "./Vector";
 import Attractor from "./Attractor";
 import random_rgb from "./random_rgb";
 import are_colliding from "./are_colliding";
+import "./style.css";
 
 const canvas = document.querySelector("canvas");
 const context = canvas.getContext("2d");
@@ -46,7 +46,7 @@ function init_controls() {
 
   range.addEventListener("input", () => (moverRadius = Number(range.value)));
 
-  canvas.addEventListener("click", (event) => {
+  canvas.addEventListener("click", () => {
     if (mode === MODES.DRAGGING) return;
 
     const position = mouse.copy();
