@@ -73,7 +73,7 @@ function init_controls() {
 
     if (mode === MODES.M) {
       const velocity = new Vector(0, 0);
-      const mover = new Mover(canvas, position, velocity, radius, color);
+      const mover = new Mover(context, position, velocity, radius, color);
 
       movers.push(mover);
     } else if (mode === MODES.T) {
