@@ -1,0 +1,2 @@
+I want to make a simple shooting game where the player controls a cannon on the left side of the screen, and the goal is to shoot down planes that come from the right. The planes also drop bombs, and when the player is hit enough times it's over. 
+
