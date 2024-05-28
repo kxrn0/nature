@@ -25,7 +25,7 @@ export default function Curve(start, end, amplitude, da, dx) {
     let angle = this.startAngle;
 
     context.beginPath();
-    context.translate(start.x, start.y);
+    context.translate(this.start.x, this.start.y);
     context.rotate(direction.angle());
     context.moveTo(0, 0);
 
