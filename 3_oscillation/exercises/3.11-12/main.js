@@ -1,6 +1,6 @@
 import Curve from "./Curve";
 import Vector from "./Vector";
-import are_colliding from "./are_colliding";
+import are_intersecting from "./are_intersecting";
 import "./style.css";
 
 const canvas = document.querySelector("canvas");
@@ -35,17 +35,9 @@ function move_curve() {
       const a = { radius: 5, center: curve.start };
       const b = { radius: 5, center: curve.end };
 
-      if (are_colliding(user, a)) {
-        console.log("start");
+      if (are_intersecting(user, a)) return (movePoint = curve.start);
 
-        return (movePoint = curve.start);
-      }
-
-      if (are_colliding(user, b)) {
-        console.log("end");
-
-        return (movePoint = curve.end);
-      }
+      if (are_intersecting(user, b)) return (movePoint = curve.end);
     }
   }
 }
