@@ -37,7 +37,7 @@ export default function Curve(start, end, amplitude, da, dx) {
       if (x <= taperLength) amp *= x / taperLength;
       else if (x >= steps - taperLength) amp *= (steps - x) / taperLength;
 
-      const y = amp * Math.sin(angle);
+      const y = amp * (Math.sin(angle) + Math.cos(angle * 2));
 
       context.lineTo(x * this.dx, y);
 
