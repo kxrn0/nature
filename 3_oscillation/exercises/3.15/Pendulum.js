@@ -1,21 +1,18 @@
 import Vector from "./Vector";
 
 export default function Pendulum(pivot, angle, damping, armLength, bobRadius) {
-  this.pivot = pivot.clone();
+  this.pivot = pivot;
   this.armLength = armLength;
   this.bobRadius = bobRadius;
   this.bobPosition = new Vector(Math.sin(angle), Math.cos(angle))
-    .add(pivot)
-    .scale(armLength);
+    .scale(armLength)
+    .add(pivot);
   this.angle = angle;
   this.angularVelocity = 0;
   this.angularAcceleration = 0;
   this.damping = damping;
-  this.isDragging = false;
 
   this.move = function (gravity) {
-    if (this.isDragging) return;
-
     this.angularAcceleration =
       (-1 * gravity * Math.sin(this.angle)) / this.armLength;
     this.angularVelocity += this.angularAcceleration;
@@ -43,19 +40,5 @@ export default function Pendulum(pivot, angle, damping, armLength, bobRadius) {
       Math.PI * 2
     );
     context.fill();
-  };
-
-  this.drag = function (to) {
-    if (!this.isDragging) return;
-
-    const vector = Vector.add(to, this.pivot.clone().scale(-1));
-    const angle = Math.atan2(-vector.y, vector.x) + Math.PI / 2;
-
-    vector.set_size(this.armLength).add(this.pivot);
-
-    this.bobPosition.copy(vector);
-    this.angle = angle;
-    this.angularVelocity = 0;
-    this.angularAcceleration = 0;
   };
 }

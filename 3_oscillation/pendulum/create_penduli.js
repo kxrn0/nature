@@ -10,8 +10,8 @@ export default function create_penduli(number, angle) {
   for (let i = 0; i < number; i++) {
     const pivot = new Vector(step * (i + 1), height);
     const damping = 0.99;
-    const length = minLength * (1 + i);
-    const bobRadius = 25;
+    const length = minLength * (1 + i / number);
+    const bobRadius = 15;
     const pendulum = new Pendulum(pivot, angle, damping, length, bobRadius);
 
     penduli.push(pendulum);

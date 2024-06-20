@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 100vw;
+      height: 100vh;
+      display: grid;
+      place-items: center;
+    }
+  </style>
+</head>
+
+<body>
+  <canvas></canvas>
+  <script>
+
+    /**
+     * Sliding down an incline. The friction force is equal to the negative of a constant, which can be 1 in this case, times the magnitude
+     * of the normal to the incline, and the normalized velocity vector of the body. The body will need to experience gravity as well, which 
+     * will be just a vector pointing down. I can't just apply those forces to the body and be done with it, since the body would just go
+     * straight down. How do I prevent this? The incline is a line with a start and ending point, so it can be described with a linear
+     * equation of the form y = m * x + b. Since this is a simple example, I can half ass things, and say that the body can't go below the
+     * incline, so if the body's coordinates are greater than that of the incline, then I set the body's coordinates to that point on the
+     * incline, otherwise I let it continue.
+     * 
+     * */
+
+    const canvas = document.querySelector("canvas");
+    const contex = canvas.getContext("2d");
+
+    const body = {
+      width: 50,
+      height: 50,
+      mass: 10,
+      position: { x: 0, y: 0 },
+      velocity: { x: 0, y: 0 },
+      acceleration: { x: 0, y: 0 },
+      apply_force: function (force) {
+        const scaled = { x: force.x / this.mass, y: force.y / this.mass };
+
+        this.acceleration.x += scaled.x;
+        this.acceleration.y += scaled.y;
+      },
+      move: function () {
+        this.velocity.x += this.acceleration.x;
+        this.velocity.y += this.acceleration.y;
+        this.position.x += this.velocity.x;
+        this.position.y += this.velocity.y;
+        this.acceleration = { x: 0, y: 0 };
+      },
+      draw: function (context) {
+        context.beginPath();
+        context.arc(this.position.x, this.position.y, this.mass, 0, Math.PI);
+        contex.fill();
+      }
+    }
+    const incline = {
+      start: { x: innerWidth / 2 - 300, y: innerHeight / 2 - 200 },
+      end: { x: innerWidth / 2 + 200, y: innerHeight / 2 + 300 },
+      draw: function (context) {
+        contex.beginPath();
+        contex.moveTo(this.start.x, this.start.y);
+        contex.lineTo(this.end.x, this.end.y);
+        contex.stroke();
+      },
+    }
+
+
+    function anime() {
+      contex.clearRect(0, 0, canvas.width, canvas.height);
+
+      requestAnimationFrame(anime);
+    }
+
+    function init() {
+      canvas.width = innerWidth;
+      canvas.height = innerHeight;
+
+      requestAnimationFrame(anime);
+    }
+
+    init();
+  </script>
+</body>
+
+</html>
