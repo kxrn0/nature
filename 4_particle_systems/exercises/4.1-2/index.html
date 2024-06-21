@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      display: grid;
+      place-items: center;
+      min-height: 100vh;
+    }
+  </style>
+</head>
+
+<body>
+  <canvas></canvas>
+  <script>
+    /*
+      begin
+    */
+
+    function map(value, minFrom, maxFrom, minTo, maxTo) {
+      return ((maxTo - minTo) * (value - minFrom)) / (maxFrom - minFrom);
+
+    }
+
+    function random(min, max) {
+      return Math.random() * (max - min) + min;
+
+    }
+
+    function random_rgb() {
+      return `rgb(${random(0, 255)}, ${random(0, 255)}, ${random(0, 255)})`;
+    }
+
+    function Vector(x, y) {
+      this.x = x;
+      this.y = y;
+
+      this.add = function (other) {
+        this.x += other.x;
+        this.y += other.y;
+
+        return this;
+      };
+
+      this.clone = function () {
+        return new Vector(this.x, this.y);
+      };
+
+      this.copy = function (v) {
+        this.x = v.x;
+        this.y = v.y;
+
+        return this;
+      };
+
+      this.set_size = function (n) {
+        this.normalize().scale(n);
+
+        return this;
+      };
+
+      this.set = function (x, y) {
+        this.x = x;
+        this.y = y;
+
+        return this;
+      };
+
+      this.size = function () {
+        return Math.sqrt(this.x * this.x + this.y * this.y);
+      };
+
+      this.scale = function (n) {
+        this.x *= n;
+        this.y *= n;
+
+        return this;
+      };
+
+      this.normalize = function () {
+        const size = this.size();
+
+        if (!size) return this;
+
+        this.scale(1 / size);
+
+        return this;
+      };
+
+      this.angle = function () {
+        return Math.atan2(this.y, this.x);
+      };
+    }
+
+    Vector.add = function (u, v) {
+      return new Vector(u.x + v.x, u.y + v.y);
+    };
+
+    Vector.from_angle = function (a, size = 1) {
+      return new Vector(size * Math.cos(a), size * Math.sin(a));
+    };
+
+    Vector.random = function () {
+      const angle = random(0, Math.PI * 2);
+
+      return new Vector(Math.cos(angle), Math.sin(angle));
+    }
+
+    function Particle(position, size = 25, color = "orange", lifespan = 500, decadence = 1) {
+      this.position = position.clone();
+      this.velocity = new Vector(0, 0);
+      this.acceleration = new Vector(0, 0);
+      this.angle = 0;
+      this.angularVelocity = 0;
+      this.angularAcceleration = 0;
+      this.size = size;
+      this.color = color;
+      this.lifespan = lifespan;
+      this.lifeForce = lifespan;
+      this.decadence = decadence;
+
+      this.draw = function (context) {
+        if (this.lifeForce <= 0)
+          return;
+
+        context.beginPath();
+        context.globalAlpha = map(this.lifeForce, 0, this.lifespan, 0, 1);
+        context.translate(this.position.x, this.position.y);
+        context.rotate(this.angle);
+        context.fillStyle = this.color;
+        context.fillRect(-this.size / 2, -this.size / 2, this.size, this.size);
+        context.globalAlpha = 1;
+        context.setTransform(1, 0, 0, 1, 0, 0);
+      }
+
+      this.move = function () {
+        this.velocity.add(this.acceleration);
+        this.position.add(this.velocity);
+        this.acceleration.scale(0);
+        this.angularVelocity += this.angularAcceleration;
+        this.angle += this.angularVelocity;
+        this.angularAcceleration = 0;
+        this.lifeForce -= this.decadence;
+      }
+
+      this.apply_force = function (force) {
+        this.acceleration.add(force);
+        this.angularAcceleration += force.x / 100;
+      }
+
+      this.run = function (context, force) {
+        this.apply_force(force);
+        this.move();
+        this.draw(context);
+      }
+
+      this.is_dead = function () {
+        return this.lifeForce <= 0;
+      }
+    }
+
+    /*
+      end
+    */
+
+    const canvas = document.querySelector("canvas");
+    const context = canvas.getContext("2d");
+    const gravity = new Vector(0, .05);
+    const origin = new Vector(innerWidth / 2, innerHeight / 4);
+    const maxParts = 1000;
+    const parts = [];
+    const interval = 33;
+    let prevTime;
+
+    function add_particle() {
+      const size = random(15, 25);
+      const color = random_rgb();
+      const part = new Particle(origin, size, color, 250, 1);
+      const force = Vector.random().scale(5);
+
+      part.apply_force(force);
+
+      parts.push(part);
+    }
+
+    function reset_particle(particle) {
+      const force = Vector.random().scale(5);
+
+      particle.position.copy(origin);
+      particle.velocity = new Vector(random(-5, 5), random(-5, 5));
+      particle.apply_force(force);
+    }
+
+    function anime(timestamp) {
+      const dt = timestamp - prevTime;
+
+      context.clearRect(0, 0, canvas.width, canvas.height);
+
+      if (dt > interval) {
+        if (parts.length < maxParts)
+          add_particle();
+
+        prevTime = timestamp;
+      }
+
+      for (let part of parts) {
+        part.run(context, gravity);
+
+        if (part.is_dead()) {
+          reset_particle(part);
+        }
+      }
+
+      requestAnimationFrame(anime);
+    }
+
+    function init() {
+      canvas.width = innerWidth;
+      canvas.height = innerHeight
+      prevTime = 0;
+
+      requestAnimationFrame(anime);
+    }
+
+    init();
+  </script>
+</body>
+
+</html>
