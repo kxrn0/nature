@@ -218,9 +218,8 @@
       for (let part of parts) {
         part.run(context, gravity);
 
-        if (part.is_dead()) {
+        if (part.is_dead())
           reset_particle(part);
-        }
       }
 
       requestAnimationFrame(anime);
