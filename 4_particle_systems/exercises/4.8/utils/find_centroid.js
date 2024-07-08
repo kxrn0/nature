@@ -1,5 +1,5 @@
-function find_centroid(vertices, dir) {
-  const area = find_area(vertices, dir);
+function find_centroid(vertices) {
+  const area = find_area(vertices);
   let cx, cy, i, c;
 
   cx = cy = i = c = 0;
@@ -14,8 +14,8 @@ function find_centroid(vertices, dir) {
     i++;
   }
 
-  cx /= 6 * area * dir;
-  cy /= 6 * area * dir;
+  cx /= 6 * area;
+  cy /= 6 * area;
 
   return new Vector(cx, cy);
 }

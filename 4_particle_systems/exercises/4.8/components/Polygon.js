@@ -1,6 +1,6 @@
 function Polygon(vertices, color) {
-  const position = find_centroid(vertices, -1);
-  const mass = find_area(vertices, 1);
+  const position = find_centroid(vertices);
+  const mass = find_area(vertices);
 
   Body.call(this, position, mass);
 
@@ -16,14 +16,17 @@ Object.setPrototypeOf(Polygon.prototype, Body.prototype);
 Polygon.prototype.apply_force = function (force) {
   Body.prototype.apply_force.call(this, force);
 
-  this.angularAcceleration += force.x / 50;
+  this.angularAcceleration += force.x / 5000;
 };
 
 Polygon.prototype.move = function () {
   const prevPosition = this.position.clone();
   const prevAngle = this.angle;
 
+  this.angularVelocity += this.angularAcceleration;
+  this.angle += this.angularVelocity;
   Body.prototype.move.call(this);
+  this.angularAcceleration = 0;
 
   const diffPosition = Vector.sub(this.position, prevPosition);
   const diffAngle = this.angle - prevAngle;

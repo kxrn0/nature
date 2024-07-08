@@ -1,4 +1,4 @@
-function find_area(vertices, dir) {
+function find_area(vertices) {
   let area, i, c;
 
   area = i = c = 0;
@@ -11,7 +11,7 @@ function find_area(vertices, dir) {
     i++;
   }
 
-  area /= 2 * dir;
+  area /= 2;
 
   return area;
 }
