@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Party</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+
+<body>
+  <canvas></canvas>
+  <div class="controls">
+    <fieldset>
+      <legend>mode</legend>
+      <ul>
+        <li>
+          <label>
+            <input type="radio" name="mode" value="attractor">
+            <span>attractor</span>
+          </label>
+        </li>
+        <li>
+          <label>
+            <input type="radio" name="mode" value="repeller">
+            <span>repeller</span>
+          </label>
+        </li>
+        <li>
+          <label>
+            <input type="radio" name="mode" value="system" checked>
+            <span>system</span>
+          </label>
+        </li>
+      </ul>
+    </fieldset>
+    <div>
+      <span>strength</span>
+      <input type="range" min="1000" max="10000" value="5000">
+    </div>
+  </div>
+
+  <script src="./utils/constrain.js"></script>
+  <script src="./utils/map.js"></script>
+  <script src="./utils/random.js"></script>
+  <script src="./utils/random_rgb.js"></script>
+  <script src="./components/Vector.js"></script>
+  <script src="./components/Body.js"></script>
+  <script src="./components/Square.js"></script>
+  <script src="./components/Disturbance.js"></script>
+  <script src="./components/Particle.js"></script>
+  <script src="./components/ParticleSystem.js"></script>
+  <script src="./main.js"></script>
+</body>
+
+</html>
