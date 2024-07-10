@@ -1,0 +1,2 @@
+A fire is something that has width and height. It's a particle system that it's constantly creating new particles. For now there is only one type of particle; the fire particle. The sprite used to draw a fire particle depends on where it's spawned. If the particle is spawned in the first third of the fire's width, the left leaning sprite will be used to draw the particle. If it's spawned in the middle, the middle on will be used, and so on.
+
