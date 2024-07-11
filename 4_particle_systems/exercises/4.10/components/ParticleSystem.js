@@ -31,7 +31,6 @@ ParticleSystem.prototype.turn_off = function () {
 ParticleSystem.prototype.add_particle = function () {
   const width = random(5, 15);
   const height = random(5, 15);
-  const shade = random(0, 255);
   const color = random_rgb();
   const body = new Square(this.origin, width, height, color);
   const lifeSpan = random(this.minLifeSpan, this.maxLifeSpan);
