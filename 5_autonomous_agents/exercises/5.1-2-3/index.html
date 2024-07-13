@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vehicles</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+
+<body>
+  <canvas></canvas>
+  <div class="controls">
+    <label>
+      <span>add predator</span>
+      <input type="radio" name="radio" id="predator" checked>
+    </label>
+    <label>
+      <span>add swamp</span>
+      <input type="radio" name="radio" id="mud">
+    </label>
+  </div>
+  <script src="./utils/random.js"></script>
+  <script src="./utils/random_rgb.js"></script>
+  <script src="./utils/is_point_in_rect.js"></script>
+  <script src="./utils/draw_box.js"></script>
+  <script src="./components/Vector.js"></script>
+  <script src="./components/Vehicle.js"></script>
+  <script src="./components/Mud.js"></script>
+  <script src="./main.js"></script>
+</body>
+
+</html>

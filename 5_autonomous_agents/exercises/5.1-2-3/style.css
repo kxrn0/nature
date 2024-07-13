@@ -1,0 +1,21 @@
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+}
+
+.controls {
+  background-color: rgb(25, 3, 3, 0.8);
+  color: white;
+  position: fixed;
+  top: 5px;
+  right: 5px;
+}

@@ -14,7 +14,7 @@ export default function draw_radial_gradient(
   );
 
   gradient.addColorStop(0, color);
-  gradient.addColorStop(1, "transparent");
+  gradient.addColorStop(1, "#ffffff00");
 
   context.fillStyle = gradient;
   context.fillRect(
