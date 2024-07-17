@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="./style.css">
+  <title>Walls</title>
+</head>
+
+<body>
+  <canvas></canvas>
+  <div class="controls">
+    <label>
+      <span>add wall</span>
+      <input type="radio" name="radio" id="wall-radio" checked>
+    </label>
+    <label>
+      <span>add vehicle</span>
+      <input type="radio" name="radio" id="vehicle-radio">
+    </label>
+    <label>
+      <span>debug view</span>
+      <input type="checkbox" id="debug-box" checked>
+    </label>
+  </div>
+  <script src="./utils/balls_touch.js"></script>
+  <script src="./components/Vector.js"></script>
+  <script src="./utils/map.js"></script>
+  <script src="./utils/random.js"></script>
+  <script src="./utils/random_rgb.js"></script>
+  <script src="./utils/is_point_in_rect.js"></script>
+  <script src="./utils/find_corners.js"></script>
+  <script src="./utils/find_closest_point.js"></script>
+  <script src="./components/Wanderer.js"></script>
+  <script src="./components/Wall.js"></script>
+  <script src="./main.js"></script>
+</body>
+
+</html>

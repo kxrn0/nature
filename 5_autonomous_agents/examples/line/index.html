@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="./style.css">
+  <title>Line</title>
+</head>
+
+<body>
+  <canvas></canvas>
+  <div class="controls">
+    <label>
+      <span>add line</span>
+      <input type="radio" name="radio" id="line-radio" checked>
+    </label>
+    <label>
+      <span>add point</span>
+      <input type="radio" name="radio" id="point-radio">
+    </label>
+    <label>
+      <span>selecting line</span>
+      <input type="radio" name="radio" id="select-radio">
+    </label>
+  </div>
+  <script src="./utils/draw_line.js"></script>
+  <script src="./utils/midpoint.js"></script>
+  <script src="./utils/dist.js"></script>
+  <script src="./utils/seg_point_dist.js"></script>
+  <script src="./utils/find_closest.js"></script>
+  <script src="./utils/find_corners.js"></script>
+  <script src="./utils/is_point_in_rect.js"></script>
+  <script src="./components/Line.js"></script>
+  <script src="./main.js"></script>
+</body>
+
+</html>

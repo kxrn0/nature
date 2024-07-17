@@ -72,6 +72,12 @@ Vector.prototype.limit = function (min, max) {
   else if (size > max) this.set_size(max);
 };
 
+Vector.prototype.set_angle = function (angle) {
+  this.copy(Vector.from_angle(angle, this.size()));
+
+  return this;
+};
+
 Vector.add = function (u, v) {
   return new Vector(u.x + v.x, u.y + v.y);
 };
@@ -92,4 +98,15 @@ Vector.random = function (size) {
   const angle = random(0, Math.PI * 2);
 
   return new Vector(size * Math.cos(angle), size * Math.sin(angle));
+};
+
+Vector.dist = function (u, v) {
+  const dx = u.x - v.x;
+  const dy = u.y - v.y;
+
+  return Math.sqrt(dx * dx + dy * dy);
+};
+
+Vector.from_segment = function (start, end) {
+  return new Vector(end.x - start.x, end.y - start.y);
 };
