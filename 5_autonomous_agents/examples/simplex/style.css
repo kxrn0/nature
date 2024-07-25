@@ -1,0 +1,20 @@
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: rgb(252, 207, 123);
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+}
+
+canvas {
+  background-color: azure;
+  border: 2px solid salmon;
+  border-radius: 5px;
+}

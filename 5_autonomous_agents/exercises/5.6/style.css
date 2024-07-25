@@ -1,0 +1,22 @@
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: rgb(245, 204, 129);
+  display: flex;
+  justify-content: center;
+  gap: 25px;
+  flex-wrap: wrap;
+  padding: 50px;
+}
+
+canvas {
+  background: azure;
+  border: 2px solid salmon;
+  border-radius: 5px;
+}
