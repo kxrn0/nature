@@ -1,0 +1,27 @@
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+}
+
+p {
+  background-color: black;
+  color: azure;
+  position: absolute;
+  top: 50px;
+  left: 50px;
+  font-size: 30px;
+  font-family: monospace;
+  padding: 5px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+}
