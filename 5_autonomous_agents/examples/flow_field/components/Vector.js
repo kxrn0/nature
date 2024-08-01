@@ -1,5 +1,3 @@
-import random from "../utils/random.js";
-
 export default function Vector(x, y) {
   this.x = x;
   this.y = y;
@@ -12,10 +10,9 @@ Vector.prototype.add = function (other) {
   return this;
 };
 
-Vector.prototype.sub = function (other) {
+Vector.sub = function (other) {
   this.x -= other.x;
   this.y -= other.y;
-
   return this;
 };
 
@@ -106,10 +103,4 @@ Vector.dist = function (u, v) {
 
 Vector.from_segment = function (start, end) {
   return new Vector(end.x - start.x, end.y - start.y);
-};
-
-Vector.random = function (size) {
-  const angle = random(0, Math.PI * 2);
-
-  return new Vector(size * Math.cos(angle), size * Math.sin(angle));
 };
