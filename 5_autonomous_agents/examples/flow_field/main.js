@@ -44,7 +44,7 @@ function init() {
   const width = innerWidth / 1.25;
   const height = innerHeight / 1.25;
   const res = 1;
-  const dt = 0.001;
+  const dt = 0.005;
 
   field = new PerlinField(center, width, height, res, dt);
 
