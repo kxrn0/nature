@@ -1,0 +1,52 @@
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+}
+
+.controls {
+  background-color: rgb(12, 12, 13, 0.75);
+  font-family: "Courier New", Courier, monospace;
+  color: azure;
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  padding: 10px;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.controls label {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.controls label input[type="radio"] {
+  --orange: rgb(255, 205, 113);
+  appearance: none;
+  outline: 1px solid azure;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 100%;
+}
+
+.controls label input[type="radio"]:checked {
+  background-image: radial-gradient(
+    var(--orange),
+    var(--orange) 30%,
+    transparent 30%
+  );
+}

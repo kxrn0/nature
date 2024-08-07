@@ -1,10 +1,6 @@
-import dist from "./dist.js";
+export default function is_between(p, a, b) {
+  const bndInX = Math.min(a.x, b.x) <= p.x && p.x <= Math.max(a.x, b.x);
+  const bndInY = Math.min(a.y, b.y) <= p.y && p.y <= Math.max(a.y, b.y);
 
-export default function is_between(p, a, b, f = 3) {
-  const total = Number(dist(a, b).toFixed(f));
-  const da = dist(p, a);
-  const db = dist(p, b);
-  const sum = Number((da + db).toFixed(f));
-
-  return sum <= total;
+  return bndInX && bndInY;
 }
