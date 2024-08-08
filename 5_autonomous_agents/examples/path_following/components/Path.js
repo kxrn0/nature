@@ -1,28 +1,55 @@
-export default function Path(points) {
+export default function Path(points, radius) {
   this.points = points;
-  this.isActive = true;
+  this.isSelected = true;
+  this.drawMode = Path.DRAW_MODES.SELECTED;
+  this.radius = radius;
 }
 
 Path.prototype.draw = function (context) {
-  const base = this.isActive ? "red" : "yellow";
-  const line = this.isActive ? "white" : "black";
+  if (this.drawMode === Path.DRAW_MODES.MOVING) {
+    Path.draw_path(context, this.points, 3, "blue");
 
+    for (let i = 0; i < this.points.length; i++) {
+      context.beginPath();
+      context.arc(
+        this.points[i].x,
+        this.points[i].y,
+        Path.POINT_RADIUS,
+        0,
+        Math.PI * 2
+      );
+      context.fill();
+    }
+  } else {
+    let base;
+
+    if (this.drawMode === Path.DRAW_MODES.NORMAL) base = "gray";
+    else base = "orange";
+
+    Path.draw_path(context, this.points, this.radius * 2, base);
+    Path.draw_path(context, this.points, 1, "black");
+  }
+};
+
+Path.prototype.deselect = function () {
+  this.isSelected = false;
+  this.drawMode = Path.DRAW_MODES.NORMAL;
+};
+
+Path.DRAW_MODES = {
+  NORMAL: "NORMAL",
+  SELECTED: "SELECTED",
+  MOVING: "MOVING",
+};
+
+Path.POINT_RADIUS = 10;
+
+Path.draw_path = function (context, points, width, stroke) {
   context.beginPath();
-  context.strokeStyle = base;
-  context.lineWidth = 10;
-  context.moveTo(this.points[0].x, this.points[0].y);
-
-  for (let i = 1; i < this.points.length; i++)
-    context.lineTo(this.points[i].x, this.points[i].y);
-
-  context.stroke();
-
-  context.beginPath();
-  context.strokeStyle = line;
-  context.lineWidth = 1;
-  context.moveTo(this.points[0].x, this.points[0].y);
-  for (let i = 1; i < this.points.length; i++)
-    context.lineTo(this.points[i].x, this.points[i].y);
-
+  context.lineWidth = width;
+  context.strokeStyle = stroke;
+  context.moveTo(points[0].x, points[0].y);
+  for (let i = 0; i < points.length; i++)
+    context.lineTo(points[i].x, points[i].y);
   context.stroke();
 };

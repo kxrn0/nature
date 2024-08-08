@@ -1,12 +1,14 @@
+import Path from "./components/Path.js";
 import Vector from "./components/Vector.js";
 import are_intersecting from "./utils/are_intersecting.js";
 import dist from "./utils/dist.js";
 import draw_circle from "./utils/draw_circle.js";
 import draw_line from "./utils/draw_line.js";
+import find_corners from "./utils/find_corners.js";
 import is_point_in_circle from "./utils/is_point_in_circle.js";
+import is_point_in_rect from "./utils/is_point_in_rect.js";
+import seg_point_dist from "./utils/seg_point_dist.js";
 
-const canvas = document.querySelector("canvas");
-const context = canvas.getContext("2d");
 const MODES = {
   CREATE_PATH: "CREATE_PATH",
   MOVE_POINT: "MOVE_POINT",
@@ -14,11 +16,47 @@ const MODES = {
   ADD_VEHICLE: "ADD_VEHICLE",
 };
 const RADIUS = 10;
+const PATH_RADIUS = 25;
 const MIN_SIZE = 10;
-let mode, tempSeggs, segg;
+const addPathRadio = document.querySelector("#add-path-radio");
+const moveRadio = document.querySelector("#move-radio");
+const selectRadio = document.querySelector("#select-radio");
+const addVehicleRadio = document.querySelector("#add-vehicle-radio");
+const canvas = document.querySelector("canvas");
+const context = canvas.getContext("2d");
+const paths = [];
+const moveOffset = new Vector(0, 0);
+let mode, tempSeggs, segg, selectedPath, movedPoint;
+
+function create_path() {
+  if (!tempSeggs) return;
+
+  selectedPath?.deselect();
+
+  selectedPath = new Path(tempSeggs, PATH_RADIUS);
+
+  paths.push(selectedPath);
+
+  addVehicleRadio.removeAttribute("disabled");
+  addVehicleRadio.parentElement.classList.remove("disabled");
+
+  tempSeggs = null;
+  segg = null;
+}
+
+function select() {
+  if (selectedPath) selectedPath.drawMode = Path.DRAW_MODES.SELECTED;
+}
+
+function deselect() {
+  selectedPath?.deselect();
+  selectedPath = null;
+}
 
 function anime() {
   context.clearRect(0, 0, canvas.width, canvas.height);
+
+  for (let path of paths) path.draw(context);
 
   if (tempSeggs) {
     for (let i = 0; i < tempSeggs.length - 1; i++)
@@ -52,6 +90,36 @@ function init() {
   canvas.height = innerHeight;
 
   mode = MODES.CREATE_PATH;
+  selectedPath = null;
+  movedPoint = null;
+
+  addPathRadio.addEventListener("change", () => {
+    deselect();
+
+    mode = MODES.CREATE_PATH;
+  });
+
+  moveRadio.addEventListener("change", () => {
+    create_path();
+
+    if (selectedPath) selectedPath.drawMode = Path.DRAW_MODES.MOVING;
+
+    mode = MODES.MOVE_POINT;
+  });
+
+  selectRadio.addEventListener("change", () => {
+    create_path();
+    select();
+
+    mode = MODES.SELECT_PATH;
+  });
+
+  addVehicleRadio.addEventListener("change", () => {
+    create_path();
+    select();
+
+    mode = MODES.ADD_VEHICLE;
+  });
 
   canvas.addEventListener("mousedown", (event) => {
     if (mode === MODES.CREATE_PATH) {
@@ -76,6 +144,19 @@ function init() {
         segg = { start, end, isIntersecting: false, closingIn: false };
       }
     } else if (mode === MODES.MOVE_POINT) {
+      if (!selectedPath) return;
+
+      const mouse = new Vector(event.offsetX, event.offsetY);
+
+      movedPoint = selectedPath.points.find((point) => {
+        const circle = { center: point, radius: Path.POINT_RADIUS };
+        const isSelected = is_point_in_circle(mouse, circle);
+
+        return isSelected;
+      });
+
+      if (movedPoint)
+        moveOffset.set(movedPoint.x - mouse.x, movedPoint.y - mouse.y);
     } else if (mode === MODES.SELECT_PATH) {
     } else if (mode === MODES.ADD_VEHICLE) {
     }
@@ -104,8 +185,19 @@ function init() {
           const circle = { center: tempSeggs[0], radius: RADIUS };
 
           segg.closingIn = is_point_in_circle(segg.end, circle);
+
+          if (segg.closingIn) {
+            const first = { start: tempSeggs[0], end: tempSeggs[1] };
+
+            if (are_intersecting(first, current)) segg.isIntersecting = false;
+          }
         }
       }
+    } else if (mode === MODES.MOVE_POINT) {
+      movedPoint?.set(
+        event.offsetX + moveOffset.x,
+        event.offsetY + moveOffset.y
+      );
     }
   });
 
@@ -119,12 +211,54 @@ function init() {
             tempSeggs.push(segg.end);
 
             if (segg.closingIn) {
-              //create a new path, and change the mode to add vehicle
+              tempSeggs[tempSeggs.length - 1] = tempSeggs[0];
+
+              create_path();
+
+              mode = MODES.ADD_VEHICLE;
+
+              addVehicleRadio.checked = true;
             }
           } else tempSeggs = [segg.start, segg.end];
         }
 
         segg = null;
+      }
+    } else if (mode === MODES.MOVE_POINT) {
+      movedPoint = null;
+    } else if (mode === MODES.SELECT_PATH) {
+      const mouse = new Vector(event.offsetX, event.offsetY);
+
+      const clickedPath = paths.reduce(
+        (closest, path) => {
+          let minDist = Number.POSITIVE_INFINITY;
+
+          for (let i = 0; i < path.points.length - 1; i++) {
+            const line = { start: path.points[i], end: path.points[i + 1] };
+            const corners = find_corners(line, path.radius * 2);
+            const isIn = is_point_in_rect(corners, mouse);
+
+            if (!isIn) continue;
+
+            const distance = seg_point_dist(line, mouse);
+
+            if (distance < minDist) minDist = distance;
+          }
+
+          if (minDist < closest.distance) closest = { distance: minDist, path };
+
+          return closest;
+        },
+        {
+          distance: Number.POSITIVE_INFINITY,
+          path: null,
+        }
+      )?.path;
+
+      if (clickedPath) {
+        deselect();
+        selectedPath = clickedPath;
+        select();
       }
     }
   });

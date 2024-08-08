@@ -32,6 +32,10 @@ body {
   gap: 20px;
 }
 
+.controls label.disabled {
+  opacity: 0.35;
+}
+
 .controls label input[type="radio"] {
   --orange: rgb(255, 205, 113);
   appearance: none;
