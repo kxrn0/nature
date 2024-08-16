@@ -1,0 +1,31 @@
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+}
+
+.controls {
+  background-color: rgb(25, 20, 20, 0.5);
+  color: azure;
+  font-size: 15px;
+  font-family: sans-serif;
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}

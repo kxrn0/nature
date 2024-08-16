@@ -45,11 +45,13 @@ Path.DRAW_MODES = {
 Path.POINT_RADIUS = 10;
 
 Path.draw_path = function (context, points, width, stroke) {
-  context.beginPath();
   context.lineWidth = width;
   context.strokeStyle = stroke;
-  context.moveTo(points[0].x, points[0].y);
-  for (let i = 0; i < points.length; i++)
-    context.lineTo(points[i].x, points[i].y);
-  context.stroke();
+  context.lineCap = "round";
+  for (let i = 0; i < points.length - 1; i++) {
+    context.beginPath();
+    context.moveTo(points[i].x, points[i].y);
+    context.lineTo(points[i + 1].x, points[i + 1].y);
+    context.stroke();
+  }
 };

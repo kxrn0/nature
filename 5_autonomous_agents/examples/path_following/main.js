@@ -1,5 +1,7 @@
 import Path from "./components/Path.js";
+import PathManager from "./components/PathManager.js";
 import Vector from "./components/Vector.js";
+import Vehicle from "./components/Vehicle.js";
 import are_intersecting from "./utils/are_intersecting.js";
 import dist from "./utils/dist.js";
 import draw_circle from "./utils/draw_circle.js";
@@ -24,18 +26,20 @@ const selectRadio = document.querySelector("#select-radio");
 const addVehicleRadio = document.querySelector("#add-vehicle-radio");
 const canvas = document.querySelector("canvas");
 const context = canvas.getContext("2d");
-const paths = [];
+const managers = [];
 const moveOffset = new Vector(0, 0);
-let mode, tempSeggs, segg, selectedPath, movedPoint;
+let mode, tempSeggs, segg, movedPoint, selectedManager;
 
 function create_path() {
   if (!tempSeggs) return;
 
-  selectedPath?.deselect();
+  selectedManager?.path.deselect();
 
-  selectedPath = new Path(tempSeggs, PATH_RADIUS);
+  const path = new Path(tempSeggs, PATH_RADIUS);
 
-  paths.push(selectedPath);
+  selectedManager = new PathManager(path);
+
+  managers.push(selectedManager);
 
   addVehicleRadio.removeAttribute("disabled");
   addVehicleRadio.parentElement.classList.remove("disabled");
@@ -45,18 +49,18 @@ function create_path() {
 }
 
 function select() {
-  if (selectedPath) selectedPath.drawMode = Path.DRAW_MODES.SELECTED;
+  if (selectedManager) selectedManager.path.drawMode = Path.DRAW_MODES.SELECTED;
 }
 
 function deselect() {
-  selectedPath?.deselect();
-  selectedPath = null;
+  selectedManager?.path.deselect();
+  selectedManager = null;
 }
 
 function anime() {
   context.clearRect(0, 0, canvas.width, canvas.height);
 
-  for (let path of paths) path.draw(context);
+  for (let manager of managers) manager.run(context);
 
   if (tempSeggs) {
     for (let i = 0; i < tempSeggs.length - 1; i++)
@@ -90,7 +94,7 @@ function init() {
   canvas.height = innerHeight;
 
   mode = MODES.CREATE_PATH;
-  selectedPath = null;
+  selectedManager = null;
   movedPoint = null;
 
   addPathRadio.addEventListener("change", () => {
@@ -102,7 +106,7 @@ function init() {
   moveRadio.addEventListener("change", () => {
     create_path();
 
-    if (selectedPath) selectedPath.drawMode = Path.DRAW_MODES.MOVING;
+    if (selectedManager) selectedManager.path.drawMode = Path.DRAW_MODES.MOVING;
 
     mode = MODES.MOVE_POINT;
   });
@@ -144,11 +148,11 @@ function init() {
         segg = { start, end, isIntersecting: false, closingIn: false };
       }
     } else if (mode === MODES.MOVE_POINT) {
-      if (!selectedPath) return;
+      if (!selectedManager) return;
 
       const mouse = new Vector(event.offsetX, event.offsetY);
 
-      movedPoint = selectedPath.points.find((point) => {
+      movedPoint = selectedManager.path.points.find((point) => {
         const circle = { center: point, radius: Path.POINT_RADIUS };
         const isSelected = is_point_in_circle(mouse, circle);
 
@@ -157,8 +161,6 @@ function init() {
 
       if (movedPoint)
         moveOffset.set(movedPoint.x - mouse.x, movedPoint.y - mouse.y);
-    } else if (mode === MODES.SELECT_PATH) {
-    } else if (mode === MODES.ADD_VEHICLE) {
     }
   });
 
@@ -229,8 +231,9 @@ function init() {
     } else if (mode === MODES.SELECT_PATH) {
       const mouse = new Vector(event.offsetX, event.offsetY);
 
-      const clickedPath = paths.reduce(
-        (closest, path) => {
+      const clickedManager = managers.reduce(
+        (closest, manager) => {
+          const path = manager.path;
           let minDist = Number.POSITIVE_INFINITY;
 
           for (let i = 0; i < path.points.length - 1; i++) {
@@ -245,21 +248,46 @@ function init() {
             if (distance < minDist) minDist = distance;
           }
 
-          if (minDist < closest.distance) closest = { distance: minDist, path };
+          if (minDist < closest.distance)
+            closest = { distance: minDist, manager };
 
           return closest;
         },
         {
           distance: Number.POSITIVE_INFINITY,
-          path: null,
+          manager: null,
         }
-      )?.path;
+      )?.manager;
 
-      if (clickedPath) {
+      if (clickedManager) {
         deselect();
-        selectedPath = clickedPath;
+        selectedManager = clickedManager;
         select();
       }
+    } else if (mode === MODES.ADD_VEHICLE) {
+      if (!selectedManager) return;
+
+      const position = new Vector(event.offsetX, event.offsetY);
+      const width = 20;
+      const height = 10;
+      const mass = 30;
+      const maxSpeed = 5;
+      const maxForce = 10;
+      const color = "purple";
+      const vehicle = new Vehicle(
+        position,
+        width,
+        height,
+        mass,
+        maxSpeed,
+        maxForce,
+        color
+      );
+      const push = Vector.random(10);
+
+      vehicle.apply_force(push);
+
+      selectedManager.add_vehicle(vehicle);
     }
   });
 

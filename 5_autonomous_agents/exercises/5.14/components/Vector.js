@@ -122,8 +122,6 @@ Vector.from_segment = function (start, end) {
 
 Vector.random = function (size) {
   const angle = random(0, Math.PI * 2);
-  const x = size * Math.cos(angle);
-  const y = size * Math.sin(angle);
 
-  return new Vector(x, y);
+  return new Vector(size * Math.cos(angle), size * Math.sin(angle));
 };
