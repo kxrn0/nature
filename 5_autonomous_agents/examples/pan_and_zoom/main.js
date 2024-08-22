@@ -129,13 +129,15 @@ function init() {
   const width = canvas.width * worldScale;
   const height = canvas.height * worldScale;
 
+  offset.set(width / 2 - canvas.width / 2, height / 2 - canvas.height / 2);
+
   isDragging = false;
   mode = MODES.MOVING;
   target = null;
 
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 100; i++) {
     const position = new Vector(random(0, width), random(0, height));
-    const radius = random(10, 50);
+    const radius = random(10, 20);
     const color = random_rgb();
     const ball = new Ball(position, radius, color);
 
