@@ -230,6 +230,9 @@ Vehicle.prototype.is_blocked = function (target) {
   );
 };
 
+//...
+Vehicle.prototype.move_aside = function (target, start, end) {};
+
 Vehicle.prototype.draw = function (context) {
   if (this.showDebug) {
     context.beginPath();
@@ -296,11 +299,11 @@ Vehicle.prototype.run = function (context, avoidables, box) {
 
   if (cohesion) this.apply_force(cohesion);
 
-  for (let other of avoidables) {
-    const force = this.compute_clearview(other);
+  // for (let other of avoidables) {
+  //   const force = this.compute_clearview(other);
 
-    if (force) this.apply_force(force);
-  }
+  //   if (force) this.apply_force(force);
+  // }
 
   this.move();
   this.check_edges(box);

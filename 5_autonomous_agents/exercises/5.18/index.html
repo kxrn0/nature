@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./style.css" />
+    <title>Boids</title>
+  </head>
+
+  <body>
+    <canvas></canvas>
+    <div class="controls">
+      <p class="count">boids: 10</p>
+      <fieldset>
+        <legend>controls controls</legend>
+        <label>
+          <span>show controls config</span>
+          <input type="checkbox" class="show-controls" />
+        </label>
+      </fieldset>
+
+      <div class="controls-container shown">
+        <fieldset>
+          <legend>dimensions</legend>
+          <label class="control-label">
+            <span class="details">
+              <span class="name">width</span>
+              <span class="value">10</span>
+            </span>
+            <input
+              type="range"
+              min="1"
+              max="25"
+              value="10"
+              data-query="value"
+            />
+          </label>
+          <label class="control-label">
+            <span class="details">
+              <span class="name">height</span>
+              <span class="value">5</span>
+            </span>
+            <input type="range" min="1" max="25" value="5" data-query="value" />
+          </label>
+        </fieldset>
+        <fieldset>
+          <legend>capabilities</legend>
+          <label class="control-label">
+            <span class="details">
+              <span class="name">max speed</span>
+              <span class="value">20</span>
+            </span>
+            <input
+              type="range"
+              min="10"
+              max="100"
+              value="20"
+              data-query="value"
+            />
+          </label>
+          <label class="control-label">
+            <span class="details">
+              <span class="name">max force</span>
+              <span class="value">5</span>
+            </span>
+            <input type="range" min="1" max="10" value="5" data-query="value" />
+          </label>
+        </fieldset>
+        <fieldset>
+          <legend>reaches</legend>
+          <label class="control-label">
+            <span class="details">
+              <span class="name">separation radius</span>
+              <span class="value">25</span>
+            </span>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value="25"
+              data-query="value"
+            />
+          </label>
+          <label class="control-label">
+            <span class="details">
+              <span class="name">neighboring radius</span>
+              <span class="value">50</span>
+            </span>
+            <input
+              type="range"
+              min="1"
+              max="250"
+              value="50"
+              data-query="value"
+            />
+          </label>
+        </fieldset>
+        <fieldset>
+          <legend>wants</legend>
+          <label class="control-label">
+            <span class="details">
+              <span class="name">separation weight</span>
+              <span class="value">1</span>
+            </span>
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step=".1"
+              value="1"
+              data-query="value"
+            />
+          </label>
+          <label class="control-label">
+            <span class="details">
+              <span class="name">alignment weight</span>
+              <span class="value">1</span>
+            </span>
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step=".1"
+              value="1"
+              data-query="value"
+            />
+          </label>
+          <label class="control-label">
+            <span class="details">
+              <span class="name">cohesion weight</span>
+              <span class="value">1</span>
+            </span>
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step=".1"
+              value="1"
+              data-query="value"
+            />
+          </label>
+        </fieldset>
+        <fieldset>
+          <legend>looks</legend>
+          <label class="control-label">
+            <span class="details">
+              <span class="name">color</span>
+              <span class="value">#f5c211</span>
+            </span>
+            <input type="color" value="#f5c211" data-query="value" />
+          </label>
+          <label class="control-label">
+            <span>
+              <span class="details">
+                <span class="name">show debug lines</span>
+                <span class="value">false</span>
+              </span>
+            </span>
+            <input type="checkbox" data-query="checked" />
+          </label>
+        </fieldset>
+      </div>
+    </div>
+    <script src="./main.js" type="module"></script>
+  </body>
+</html>
