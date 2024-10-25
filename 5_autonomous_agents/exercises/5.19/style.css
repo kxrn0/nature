@@ -1,0 +1,37 @@
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+}
+
+.controls {
+  background-color: rgb(0, 0, 0, 0.5);
+  color: white;
+  padding: 10px;
+  border-radius: 10px;
+  position: fixed;
+  top: 10px;
+  left: 10px;
+}
+
+.controls fieldset {
+  display: flex;
+  flex-direction: column;
+  padding: 5px;
+}
+
+.controls-container {
+  display: none;
+}
+
+.controls-container.shown {
+  display: block;
+}

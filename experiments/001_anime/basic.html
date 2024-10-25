@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Anime</title>
+    <style>
+      *,
+      *::before,
+      *::after {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        display: grid;
+        place-items: center;
+        min-height: 100vh;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas width="600" height="600"></canvas>
+    <script>
+      const canvas = document.querySelector("canvas");
+      const context = canvas.getContext("2d");
+      const square = {
+        position: { x: 0, y: 0 },
+        angle: 0,
+        dAngle: .1,
+        sideLength: 0,
+        color: "",
+        t: 0,
+        dt: 1,
+        update: function() {
+
+        }
+      };
+
+
+      function anime() {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+
+        requestAnimationFrame(anime);
+      }
+
+      function init() {
+        canvas.width = innerWidth;
+        canvas.height = innerHeight;
+
+        square.position = { x: innerWidth / 2, y: innerHeight / 2 };
+        square.sideLength = Math.min(innerWidth, innerHeight) / 2;
+        square.color = "hsl(0, 100%, 50%)";
+
+        requestAnimationFrame(anime);
+      }
+
+      init();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Basic Oscillation</title>
+    <style>
+      *,
+      *::before,
+      *::after {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+      }
+
+      canvas {
+        border: 2px solid gray;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas width="600" height="600"></canvas>
+    <script>
+      const canvas = document.querySelector("canvas");
+      const context = canvas.getContext("2d");
+      const circle = {};
+
+      function map(value, minFrom, maxFrom, minTo, maxTo) {
+        return (
+          minTo + ((maxTo - minTo) * (value - minFrom)) / (maxFrom - minFrom)
+        );
+      }
+
+      function compute(min, max, t) {
+        return map(Math.sin(t), -1, 1, min, max);
+      }
+
+      function anime() {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+
+        circle.update();
+        circle.draw();
+
+        requestAnimationFrame(anime);
+      }
+
+      function init() {
+        circle.center = { x: canvas.width / 2, y: canvas.height / 2 };
+        circle.radius = {
+          min: 50,
+          max: 100,
+          value: 50,
+        };
+        circle.fillStyle = "orange";
+        circle.age = 0;
+        circle.dAge = 0.01;
+        circle.update = function () {
+          this.radius.value = compute(
+            this.radius.min,
+            this.radius.max,
+            this.age
+          );
+
+          this.age += this.dAge;
+        };
+        circle.draw = function () {
+          context.beginPath();
+          context.fillStyle = this.fillStyle;
+          context.arc(
+            this.center.x,
+            this.center.y,
+            this.radius.value,
+            0,
+            Math.PI * 2
+          );
+          context.fill();
+
+          context.font = "50px sans-serif";
+          context.textAlign = "center";
+          context.textBaseline = "middle";
+          context.fillStyle = "white";
+          context.fillText(
+            Math.round(this.radius.value),
+            this.center.x,
+            this.center.y
+          );
+        };
+
+        canvas.addEventListener("click", () => console.log(circle));
+
+        requestAnimationFrame(anime);
+      }
+
+      init();
+    </script>
+  </body>
+</html>
