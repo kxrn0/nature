@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Drag Circle</title>
+    <style>
+      *,
+      *::before,
+      *::after {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+      }
+
+      canvas {
+        border: 1px solid gray;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas width="600" height="600"></canvas>
+    <script>
+      const canvas = document.querySelector("canvas");
+      const context = canvas.getContext("2d");
+      const circle = {
+        center: { x: canvas.width / 2, y: canvas.height / 2 },
+        radius: 50,
+        draw: function () {
+          context.beginPath();
+          context.fillStyle = "orange";
+          context.arc(
+            this.center.x,
+            this.center.y,
+            this.radius,
+            0,
+            Math.PI * 2
+          );
+          context.fill();
+        },
+      };
+      const offset = { x: 0, y: 0 };
+      let isDragging = false;
+
+      function anime() {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+
+        circle.draw();
+
+        requestAnimationFrame(anime);
+      }
+
+      function is_point_in_circle(point, circle) {
+        const d2 =
+          (circle.center.x - point.x) * (circle.center.x - point.x) +
+          (circle.center.y - point.y) * (circle.center.y - point.y);
+        const r2 = circle.radius * circle.radius;
+
+        return d2 <= r2;
+      }
+
+      function init() {
+        canvas.addEventListener("mousedown", (event) => {
+          const point = { x: event.offsetX, y: event.offsetY };
+
+          if (is_point_in_circle(point, circle)) {
+            offset.x = point.x - circle.center.x;
+            offset.y = point.y - circle.center.y;
+            isDragging = true;
+          }
+        });
+
+        canvas.addEventListener("mousemove", (event) => {
+          if (!isDragging) return;
+
+          circle.center.x = event.offsetX - offset.x;
+          circle.center.y = event.offsetY - offset.y;
+        });
+
+        canvas.addEventListener("mouseup", () => (isDragging = false));
+
+        requestAnimationFrame(anime);
+      }
+
+      init();
+    </script>
+  </body>
+</html>

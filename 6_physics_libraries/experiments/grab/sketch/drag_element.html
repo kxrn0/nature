@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Drag Element</title>
+    <style>
+      *,
+      *::before,
+      *::after {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+      }
+
+      .circle {
+        --x: 50%;
+        --y: 50%;
+        background: orange;
+        border-radius: 100%;
+        width: 100px;
+        height: 100px;
+        position: fixed;
+        top: var(--y);
+        left: var(--x);
+        transform: translate(-50%, -50%);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="circle"></div>
+    <script>
+      const body = document.querySelector(".circle");
+      const circle = {
+        body,
+        center: { x: innerWidth / 2, y: innerHeight / 2 },
+        radius: 50,
+      };
+      const offset = { x: 0, y: 0 };
+      let isDragging = false;
+
+      function is_point_in_circle(point, circle) {
+        const d2 =
+          (circle.center.x - point.x) * (circle.center.x - point.x) +
+          (circle.center.y - point.y) * (circle.center.y - point.y);
+        const r2 = circle.radius * circle.radius;
+
+        return d2 <= r2;
+      }
+
+      window.addEventListener("mousedown", (event) => {
+        const point = { x: event.clientX, y: event.clientY };
+
+        if (is_point_in_circle(point, circle)) {
+          isDragging = true;
+          offset.x = point.x - circle.center.x;
+          offset.y = point.y - circle.center.y;
+        }
+      });
+
+      window.addEventListener("mousemove", (event) => {
+        if (!isDragging) return;
+
+        circle.center.x = event.clientX - offset.x;
+        circle.center.y = event.clientY - offset.y;
+
+        const x = `${circle.center.x}px`;
+        const y = `${circle.center.y}px`;
+
+        circle.body.style.setProperty("--x", x);
+        circle.body.style.setProperty("--y", y);
+      });
+
+      window.addEventListener("mouseup", () => (isDragging = false));
+    </script>
+  </body>
+</html>
