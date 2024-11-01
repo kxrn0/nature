@@ -3,18 +3,118 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="./style.css" />
-    <title>Grab</title>
+    <title>Stay Inside</title>
+    <style>
+      *,
+      *::before,
+      *::after {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        background-color: rgb(5, 12, 104);
+        min-height: 100vh;
+      }
+
+      .container {
+        --x: calc(50% - 100px);
+        --y: 50%;
+        background-color: orange;
+        border-radius: 5px;
+        width: 200px;
+        padding: 10px;
+        position: fixed;
+        top: var(--y);
+        left: var(--x);
+      }
+
+      .container .nav {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .container .handle {
+        background: blueviolet;
+        width: 50px;
+        height: 25px;
+      }
+    </style>
   </head>
   <body>
-    <div class="container" style="--x: 5%; --y: 5%">
-      <div class="handle"></div>
+    <div class="container">
+      <div class="nav">
+        <p>hi</p>
+        <div class="handle"></div>
+      </div>
       <h1>Lorem</h1>
       <p>
-        Lorem ipsum dolor sit, amet consectetur adipisicing elit. Mollitia,
-        vero.
+        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Dolorum,
+        placeat!
       </p>
+      <button>click</button>
     </div>
-    <script src="./main.js"></script>
+    <script>
+      function is_point_in_rect(point, rect) {
+        const x =
+          rect.corner.x <= point.x && point.x <= rect.corner.x + rect.width;
+        const y =
+          rect.corner.y <= point.y && point.y <= rect.corner.y + rect.height;
+
+        return x && y;
+      }
+    </script>
+    <script>
+      const container = document.querySelector(".container");
+      const containerRekt = container.getBoundingClientRect();
+      const handle = container.querySelector(".handle");
+      const handleRekt = handle.getBoundingClientRect();
+      const box = {
+        corner: { x: handleRekt.x, y: handleRekt.y },
+        width: handleRekt.width,
+        height: handleRekt.height,
+        parentOffset: {
+          x: handleRekt.x - containerRekt.x,
+          y: handleRekt.y - containerRekt.y,
+        },
+        parentWidth: containerRekt.width,
+        parentHeight: containerRekt.height,
+        dragOffset: { x: 0, y: 0 },
+        isBeingDragged: false,
+        element: container,
+      };
+
+      window.addEventListener("mousedown", (event) => {
+        const point = { x: event.clientX, y: event.clientY };
+
+        if (is_point_in_rect(point, box)) {
+          event.preventDefault();
+
+          box.isBeingDragged = true;
+          box.dragOffset.x = point.x - box.corner.x;
+          box.dragOffset.y = point.y - box.corner.y;
+        }
+      });
+
+      window.addEventListener("mousemove", (event) => {
+        if (!box.isBeingDragged) return;
+
+        const xp = event.clientX - box.dragOffset.x - box.parentOffset.x;
+        const yp = event.clientY - box.dragOffset.y - box.parentOffset.y;
+        const xf = Math.min(innerWidth - box.parentWidth, Math.max(0, xp));
+        const yf = Math.min(innerHeight - box.parentHeight, Math.max(0, yp));
+        const x = xf + box.parentOffset.x;
+        const y = yf + box.parentOffset.y;
+
+        box.corner = { x, y };
+
+        container.style.setProperty("--x", `${xf}px`);
+        container.style.setProperty("--y", `${yf}px`);
+      });
+
+      window.addEventListener("mouseup", () => (box.isBeingDragged = false));
+    </script>
   </body>
 </html>

@@ -15,8 +15,6 @@
 
       body {
         min-height: 100vh;
-        display: grid;
-        place-items: center;
       }
 
       .container {
@@ -39,6 +37,7 @@
         position: absolute;
         bottom: 10px;
         right: 10px;
+        border-radius: 100%;
       }
     </style>
   </head>
@@ -81,7 +80,10 @@
 
       window.addEventListener("mousedown", (event) => {
         const point = { x: event.clientX, y: event.clientY };
+
         if (is_point_in_circle(point, circle)) {
+          event.preventDefault();
+
           isDragging = true;
           offset.x = point.x - circle.center.x;
           offset.y = point.y - circle.center.y;
@@ -91,8 +93,13 @@
       window.addEventListener("mousemove", (event) => {
         if (!isDragging) return;
 
-        const x = event.offsetX - offset.x - bigOffset.x;
-        const y = event.offsetY - offset.y - bigOffset.y;
+        const xa = event.clientX - offset.x;
+        const ya = event.clientY - offset.y;
+        const x = xa - bigOffset.x;
+        const y = ya - bigOffset.y;
+
+        circle.center.x = xa;
+        circle.center.y = ya;
 
         container.style.setProperty("--x", `${x}px`);
         container.style.setProperty("--y", `${y}px`);

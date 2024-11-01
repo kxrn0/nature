@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Drag Box</title>
+    <style>
+      *,
+      *::before,
+      *::after {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        background: rgb(43, 5, 43);
+        min-height: 100vh;
+      }
+
+      .box {
+        --x: 0;
+        --y: 0;
+        position: fixed;
+        top: var(--y);
+        left: var(--x);
+        border-radius: 5px;
+      }
+
+      .box.a {
+        --x: calc(33% - 25px);
+        --y: calc(33% - 75px);
+        background: orange;
+        width: 50px;
+        height: 150px;
+      }
+
+      .box.b {
+        --x: calc(50% - 75px);
+        --y: calc(50% - 75px);
+        background: greenyellow;
+        width: 150px;
+        height: 150px;
+      }
+
+      .box.c {
+        --x: calc(66% - 75px);
+        --y: calc(66% - 25px);
+        background: skyblue;
+        width: 150px;
+        height: 50px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="box a"></div>
+    <div class="box b"></div>
+    <div class="box c"></div>
+    <script>
+      function is_point_in_rect(point, rect) {
+        const x =
+          rect.corner.x <= point.x && point.x <= rect.corner.x + rect.width;
+        const y =
+          rect.corner.y <= point.y && point.y <= rect.corner.y + rect.height;
+
+        return x && y;
+      }
+    </script>
+    <script>
+      const elements = Array.from(document.querySelectorAll(".box"));
+      const boxes = elements.map((element) => {
+        const rekt = element.getBoundingClientRect();
+        const box = {
+          corner: { x: rekt.x, y: rekt.y },
+          width: rekt.width,
+          height: rekt.height,
+          element,
+          isBeingDragged: false,
+          dragOffset: { x: 0, y: 0 },
+        };
+
+        return box;
+      });
+
+      window.addEventListener("mousedown", (event) => {
+        const point = { x: event.clientX, y: event.clientY };
+
+        for (let i = boxes.length - 1; i >= 0; i--) {
+          const box = boxes[i];
+
+          if (is_point_in_rect(point, box)) {
+            event.preventDefault();
+
+            box.isBeingDragged = true;
+            box.dragOffset.x = point.x - box.corner.x;
+            box.dragOffset.y = point.y - box.corner.y;
+            break;
+          }
+        }
+      });
+
+      window.addEventListener("mousemove", (event) => {
+        const box = boxes.find((box) => box.isBeingDragged);
+
+        if (!box) return;
+
+        const xa = event.clientX - box.dragOffset.x;
+        const ya = event.clientY - box.dragOffset.y;
+        const x = Math.min(Math.max(xa, 0), innerWidth - box.width);
+        const y = Math.min(Math.max(ya, 0), innerHeight - box.height);
+
+        box.corner = { x, y };
+
+        box.element.style.setProperty("--x", `${x}px`);
+        box.element.style.setProperty("--y", `${y}px`);
+      });
+
+      window.addEventListener("mouseup", () =>
+        boxes.forEach((box) => (box.isBeingDragged = false))
+      );
+    </script>
+  </body>
+</html>
