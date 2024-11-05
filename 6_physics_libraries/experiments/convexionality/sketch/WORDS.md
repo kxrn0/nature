@@ -4,7 +4,7 @@ I want to determine if a polygon is concave, convex, or complex, but first I hav
 
 How do I add a polygon to the screen? In the beginning there's nothing, and when the user first triggers a click event a point is added to the canvas where the user clicked. That point is added to an array of points, and a line is continuosly drawn from the point to the mouse. So I'll need a boolean variable that will indicate if the user is adding a new polygon.
 
-Before the first click that variable is false, but after it it is set to true.
+Before the first click, that variable is false, but after it it is set to true.
 
 I have something going on down there
 
@@ -208,4 +208,187 @@ I have something going on down there
 
 There's an [answer in SO](https://stackoverflow.com/questions/471962/how-do-i-efficiently-determine-if-a-polygon-is-convex-non-convex-or-complex/45372025#45372025) that claims to answer if a polygon is strictly convex. Checking that a polygon is strictly convex or not is enough for me, so I'll have the Polygon class have only two types instead of three.
 
-I have an array of vertices, and I need them to be listed in clockwise order, or counterclockwise with respect to the coordinate axes. 
+I have an array of vertices, and I need them to be listed in clockwise order with respect to the screen
+
+![](./a.jpg)
+
+or counterclockwise with respect to the axes
+
+![](./b.jpg)
+
+If the method above can tell the convexionality of the polygon regardless of the direction the vertices are listed in, then that would make things easier. First I'll translate the function from python to js:
+
+Here's the python function
+
+```python
+TWO_PI = 2 * pi
+
+def is_convex_polygon(polygon):
+    """Return True if the polynomial defined by the sequence of 2D
+    points is 'strictly convex': points are valid, side lengths non-
+    zero, interior angles are strictly between zero and a straight
+    angle, and the polygon does not intersect itself.
+
+    NOTES:  1.  Algorithm: the signed changes of the direction angles
+                from one side to the next side must be all positive or
+                all negative, and their sum must equal plus-or-minus
+                one full turn (2 pi radians). Also check for too few,
+                invalid, or repeated points.
+            2.  No check is explicitly done for zero internal angles
+                (180 degree direction-change angle) as this is covered
+                in other ways, including the `n < 3` check.
+    """
+    try:  # needed for any bad points or direction changes
+        # Check for too few points
+        if len(polygon) < 3:
+            return False
+        # Get starting information
+        old_x, old_y = polygon[-2]
+        new_x, new_y = polygon[-1]
+        new_direction = atan2(new_y - old_y, new_x - old_x)
+        angle_sum = 0.0
+        # Check each point (the side ending there, its angle) and accum. angles
+        for ndx, newpoint in enumerate(polygon):
+            # Update point coordinates and side directions, check side length
+            old_x, old_y, old_direction = new_x, new_y, new_direction
+            new_x, new_y = newpoint
+            new_direction = atan2(new_y - old_y, new_x - old_x)
+            if old_x == new_x and old_y == new_y:
+                return False  # repeated consecutive points
+            # Calculate & check the normalized direction-change angle
+            angle = new_direction - old_direction
+            if angle <= -pi:
+                angle += TWO_PI  # make it in half-open interval (-Pi, Pi]
+            elif angle > pi:
+                angle -= TWO_PI
+            if ndx == 0:  # if first time through loop, initialize orientation
+                if angle == 0.0:
+                    return False
+                orientation = 1.0 if angle > 0.0 else -1.0
+            else:  # if other time through loop, check orientation is stable
+                if orientation * angle <= 0.0:  # not both pos. or both neg.
+                    return False
+            # Accumulate the direction-change angle
+            angle_sum += angle
+        # Check that the total number of full turns is plus-or-minus 1
+        return abs(round(angle_sum / TWO_PI)) == 1
+    except (ArithmeticError, TypeError, ValueError):
+        return False  # any exception means not a proper convex polygon
+
+```
+
+![](./chie.png)
+
+What does `old_x, old_y = polygon[-2]` mean? If I try to run
+
+```python
+array = [1, 2, 3, 4, 5]
+a, b = array[-2]
+print(a)
+print(b)
+```
+
+with python3 it gives me the error
+
+```
+TypeError: cannot unpack non-iterable int object
+```
+
+---
+
+It seems like `old_x, old_y = polygon[-2]` is getting the next to last vertex in the array, and unpacking it, I guess the equivalent in javaScript would be
+
+```javascript
+const vertices = [
+  { x: 0, y: 0 },
+  { x: 1, y: 1 },
+  { x: 0, y: 2 },
+];
+const { x, y } = vertices.at(-2);
+
+console.log(`x: ${x}, y: ${y}`); // "x: 1, y: 1"
+```
+
+And I can guess that in `for ndx, newpoint in enumerable(polygon)` the variable `ndx` refers to the numerical index, and `newpoint` to the vertex object. With that in mind, I think the translation is
+
+```javascript
+function is_convex(polygon) {
+  if (polygon.length < 3) return false;
+
+  const PI = Math.PI;
+  const TWO_PI = PI * 2;
+  let { x: oldX, y: oldY } = polygon.at(-2);
+  let { x: newX, y: newY } = polygon.at(-1);
+  let newDirection = Math.atan2(newY - oldY, newX - oldX);
+  let angleSum = 0;
+  let oldDirection, orientation;
+
+  for (let i = 0; i < polygon.length; i++) {
+    const point = polygon[i];
+
+    oldX = newX;
+    oldY = newY;
+    oldDirection = newDirection;
+
+    newX = point.x;
+    newY = point.y;
+    newDirection = Math.atan2(newY - oldY, newX - oldX);
+
+    if (oldX === newX && oldY === newY) return false;
+
+    let angle = newDirection - oldDirection;
+
+    if (angle <= -PI) angle += TWO_PI;
+    else if (angle > PI) angle -= TWO_PI;
+
+    if (i) {
+      if (orientation * angle <= 0) return false;
+    } else {
+      if (!angle) return false;
+
+      orientation = angle > 0 ? 1 : -1;
+    }
+
+    angleSum += angle;
+  }
+
+  return Math.abs(Math.round(angleSum / TWO_PI)) === 1;
+}
+```
+
+Now I just have to test it. Does the order of the vertices matter? After testing the function on these polygons
+
+![](./c.jpg)
+
+it looks like it doesn't. Still, matter.js does care about the order of the vertices. Assuming I only feed it convex polygons, I first have to make sure the order of the vertices is clockwise. I want to think that the solution consists of just comparing the first vertex to the second, and (kind of) reversing the array if something is true.
+
+I'll use the normal orientation of the axes, so the vertices have to be listed in a counterclockwise manner.
+
+I'm bad at math, so rather than trying to solve the problem, I'll copy [this solution](https://math.stackexchange.com/questions/978642/how-to-sort-vertices-of-a-polygon-in-counter-clockwise-order), test it with a few examples, and go with it if it works.
+
+```javascript
+function find_center(polygon) {
+  const point = { x: 0, y: 0 };
+
+  for (let i = 0; i < polygon.length; i++) {
+    point.x += polygon[i].x;
+    point.y += polygon[i].y;
+  }
+
+  point.x /= polygon.length;
+  point.y /= polygon.length;
+
+  return point;
+}
+
+function rearrange(polygon) {
+  const center = find_center(polygon);
+
+  polygon.sort((p1, p2) => {
+    const a = Math.atan2(p1.y - center.y, p1.x - center.x);
+    const b = Math.atan2(p2.y - center.y, p2.x - center.x);
+
+    return a - b;
+  });
+}
+```
