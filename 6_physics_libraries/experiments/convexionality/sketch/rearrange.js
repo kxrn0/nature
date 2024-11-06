@@ -16,10 +16,10 @@ function rearrange(polygon) {
   const center = find_center(polygon);
 
   polygon.sort((p1, p2) => {
-    const a = Math.atan2(p1.y - center.y, p1.x - center.x);
-    const b = Math.atan2(p2.y - center.y, p2.x - center.y);
+    const a = Math.atan2(p1.x - center.x, p1.y - center.y);
+    const b = Math.atan2(p2.x - center.x, p2.y - center.y);
 
-    return a - b;
+    return b - a;
   });
 }
 

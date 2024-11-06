@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Convexionality</title>
+    <title>Polygon</title>
     <style>
       *,
       *::before,
@@ -14,22 +14,358 @@
       }
 
       body {
-        background-color: rgb(15, 4, 53);
+        background-color: rgb(19, 4, 48);
         display: grid;
         place-items: center;
         min-height: 100vh;
+      }
+
+      .controls {
+        background-color: rgba(183, 170, 157, 0.5);
+        color: white;
+        position: fixed;
+        top: 25px;
+        right: 25px;
+        padding: 10px;
+        border-radius: 5px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
       }
     </style>
   </head>
   <body>
     <canvas></canvas>
+    <div class="controls">
+      <label>
+        <span>move polygon</span>
+        <input type="radio" name="radio-group" id="radio-move" />
+      </label>
+      <div>
+        <label>
+          <span>add polygon</span>
+          <input type="radio" name="radio-group" id="radio-add" checked />
+        </label>
+        <button class="reset-button">reset</button>
+      </div>
+    </div>
+    <!-- is_point_in_polygon -->
+    <script>
+      function fun(point, vertices) {
+        let c;
+
+        c = false;
+
+        for (let i = 0, j = vertices.length - 1; i < vertices.length; j = i++) {
+          if (
+            vertices[i].y > point.y !== vertices[j].y > point.y &&
+            point.x <
+              ((vertices[j].x - vertices[i].x) * (point.y - vertices[i].y)) /
+                (vertices[j].y - vertices[i].y) +
+                vertices[i].x
+          )
+            c = !c;
+        }
+
+        return c;
+      }
+
+      const LEFT = "LEFT";
+      const RIGHT = "RIGHT";
+
+      function v_sub(a, b) {
+        return { x: a.x - b.x, y: a.y - b.y };
+      }
+
+      function cosine_sign(a, b) {
+        return a.x * b.y - a.y * b.x;
+      }
+
+      function get_side(a, b) {
+        const sign = cosine_sign(a, b);
+
+        if (sign < 0) return LEFT;
+        if (sign > 0) return RIGHT;
+
+        return null;
+      }
+
+      function is_point_in_convex_polygon(point, polygon) {
+        let prevSide;
+
+        prevSide = null;
+
+        for (let i = 0; i < polygon.length; i++) {
+          const a = vertices[i];
+          const b = vertices[(i + 1) % (polygon.length - 1)];
+          const affineSegment = v_sub(b, a);
+          const affinePoint = v_sub(point, a);
+          const currentSide = get_side(affineSegment, affinePoint);
+
+          if (!currentSide) return false;
+          else if (!prevSide) prevSide = currentSide;
+          else if (prevSide !== currentSide) return false;
+        }
+
+        return true;
+      }
+    </script>
+    <!-- is_point_in_circle -->
+    <script>
+      function is_point_in_circle(point, circle) {
+        const d2 =
+          (circle.center.x - point.x) * (circle.center.x - point.x) +
+          (circle.center.y - point.y) * (circle.center.y - point.y);
+        const r2 = circle.radius * circle.radius;
+
+        return d2 <= r2;
+      }
+    </script>
+    <!-- drawing functions -->
+    <script>
+      function draw_circle(context, center, radius, color) {
+        context.beginPath();
+        context.fillStyle = color;
+        context.arc(center.x, center.y, radius, 0, Math.PI * 2);
+        context.fill();
+      }
+
+      function draw_path(context, vertices, strokeStyle, lineWidth, closed) {
+        context.beginPath();
+        context.strokeStyle = strokeStyle;
+        context.lineWidth = lineWidth;
+        context.moveTo(vertices[0].x, vertices[0].y);
+        for (let i = 1; i < vertices.length; i++)
+          context.lineTo(vertices[i].x, vertices[i].y);
+
+        if (closed) {
+          context.lineTo(vertices[0].x, vertices[0].y);
+          context.lineTo(vertices[1].x, vertices[1].y);
+        }
+
+        context.stroke();
+      }
+    </script>
+    <!-- Polygon class -->
+    <script>
+      function Polygon(vertices) {
+        const isConvex = Polygon.is_convex(vertices);
+
+        if (isConvex) {
+          Polygon.reorder(vertices);
+
+          this.fillStyle = "greenyellow";
+          this.strokeStyle = "green";
+        } else {
+          this.fillStyle = "lightcoral";
+          this.strokeStyle = "crimson";
+        }
+
+        this.vertices = vertices;
+      }
+
+      Polygon.prototype.draw = function (context) {
+        context.beginPath();
+        context.fillStyle = this.fillStyle;
+        context.moveTo(this.vertices[0].x, this.vertices[0].y);
+        for (let i = 1; i < this.vertices.length; i++)
+          context.lineTo(this.vertices[i].x, this.vertices[i].y);
+        context.fill();
+
+        draw_path(context, this.vertices, this.strokeStyle, 5, true);
+      };
+
+      Polygon.is_convex = function (polygon) {
+        if (polygon.length < 3) return false;
+
+        const PI = Math.PI;
+        const TWO_PI = PI * 2;
+        let { x: oldX, y: oldY } = polygon.at(-2);
+        let { x: newX, y: newY } = polygon.at(-1);
+        let newDirection, angleSum, oldDirection, orientation;
+
+        newDirection = Math.atan2(newY - oldY, newX - oldX);
+        angleSum = 0;
+
+        for (let i = 0; i < polygon.length; i++) {
+          const point = polygon[i];
+
+          oldX = newX;
+          oldY = newY;
+          oldDirection = newDirection;
+
+          newX = point.x;
+          newY = point.y;
+          newDirection = Math.atan2(newY - oldY, newX - oldX);
+
+          if (oldX === newX && oldY === newY) return false;
+
+          let angle = newDirection - oldDirection;
+
+          if (angle <= -PI) angle += TWO_PI;
+          else if (angle > PI) angle -= TWO_PI;
+
+          if (i) {
+            if (orientation * angle <= 0) return false;
+          } else {
+            if (!angle) return false;
+
+            orientation = angle > 0 ? 1 : -1;
+          }
+
+          angleSum += angle;
+        }
+
+        return Math.abs(Math.round(angleSum / TWO_PI)) === 1;
+      };
+
+      Polygon.find_centroid = function (polygon) {
+        const point = { x: 0, y: 0 };
+
+        for (let i = 0; i < polygon.length; i++) {
+          point.x += polygon[i].x;
+          point.y += polygon[i].y;
+        }
+
+        point.x /= polygon.length;
+        point.y /= polygon.length;
+
+        return point;
+      };
+
+      Polygon.reorder = function (polygon) {
+        const center = Polygon.find_centroid(polygon);
+
+        polygon.sort((p1, p2) => {
+          const a = Math.atan2(p1.x - center.x, p1.y - center.y);
+          const b = Math.atan2(p2.x - center.x, p2.y - center.y);
+
+          return b - a;
+        });
+      };
+    </script>
+    <!-- main -->
     <script>
       const canvas = document.querySelector("canvas");
       const context = canvas.getContext("2d");
+      const polygons = [];
+      const mouse = { x: 0, y: 0 };
+      let tempVertices, isBuilding, isAdding, pot, isClose, isInside;
 
-      function anime() {}
+      function anime() {
+        context.clearRect(0, 0, canvas.width, canvas.height);
 
-      function init() {}
+        for (let polygon of polygons) polygon.draw(context);
+
+        if (isBuilding) {
+          if (tempVertices.length >= 1) {
+            draw_path(context, [...tempVertices, pot], "lightgray", 1, false);
+
+            for (let i = 0; i < tempVertices.length; i++)
+              draw_circle(context, tempVertices[i], 5, "gray");
+          }
+
+          if (isClose)
+            draw_circle(
+              context,
+              tempVertices[0],
+              20,
+              "rgb(100, 255, 200, .25)"
+            );
+        }
+
+        if (isInside) {
+          draw_circle(context, mouse, 10, "rgb(200, 0, 255)");
+        }
+
+        requestAnimationFrame(anime);
+      }
+
+      function reset() {
+        tempVertices = [];
+        isBuilding = false;
+      }
+
+      function init_controls() {
+        const radioAdd = document.querySelector("#radio-add");
+        const radioMove = document.querySelector("#radio-move");
+        const resetButton = document.querySelector(".reset-button");
+
+        resetButton.addEventListener("click", reset);
+
+        radioAdd.addEventListener("change", () => (isAdding = true));
+
+        radioMove.addEventListener("change", () => {
+          isAdding = false;
+          reset();
+        });
+
+        canvas.addEventListener("click", (event) => {
+          if (isAdding) {
+            const vertex = { x: event.offsetX, y: event.offsetY };
+            const center = tempVertices[0];
+            const circle = { center: center, radius: 10 };
+
+            if (
+              center &&
+              is_point_in_circle(vertex, circle) &&
+              tempVertices.length >= 2
+            ) {
+              const polygon = new Polygon(tempVertices);
+
+              polygons.push(polygon);
+              reset();
+            } else {
+              isBuilding = true;
+              tempVertices.push(vertex);
+              pot.x = vertex.x;
+              pot.y = vertex.y;
+            }
+          } else {
+          }
+        });
+
+        canvas.addEventListener("mousemove", (event) => {
+          mouse.x = event.offsetX;
+          mouse.y = event.offsetY;
+
+          if (isAdding && isBuilding) {
+            const circle = { center: tempVertices[0], radius: 10 };
+
+            pot.x = event.offsetX;
+            pot.y = event.offsetY;
+
+            if (tempVertices.length > 2 && is_point_in_circle(pot, circle))
+              isClose = true;
+            else isClose = false;
+          } else {
+          }
+
+          isInside = polygons.some((p) => fun(mouse, p));
+        });
+
+        // window.addEventListener("mousemove", (event) => {
+        //   mouse.x = event.clientX;
+        //   mouse.y = event.clientY;
+        // });
+      }
+
+      function init() {
+        canvas.width = innerWidth;
+        canvas.height = innerHeight;
+
+        tempVertices = [];
+        isBuilding = false;
+        isAdding = true;
+        pot = { x: 0, y: 0 };
+        isInside = false;
+
+        init_controls();
+
+        requestAnimationFrame(anime);
+      }
+
+      init();
     </script>
   </body>
 </html>

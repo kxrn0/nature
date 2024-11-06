@@ -388,7 +388,32 @@ function rearrange(polygon) {
     const a = Math.atan2(p1.y - center.y, p1.x - center.x);
     const b = Math.atan2(p2.y - center.y, p2.x - center.x);
 
-    return a - b;
+    return b - a;
   });
 }
 ```
+
+It doesn't seem to work. I thought in
+
+```java
+double a1 = (Math.toDegrees(Math.atan2(a.x - center.x, a.y - center.y)) + 360) % 360;
+```
+
+the xs first was a mistake, since `atan2` takes the y first, so I "fixed" that bug, but it seems to be the right thing to do since I don't get glitches by using the source implementation.
+
+```javascript
+Polygon.reorder = function (polygon) {
+  const center = Polygon.find_centroid(polygon);
+
+  polygon.sort((p1, p2) => {
+    const a = Math.atan2(p1.x - center.x, p1.y - center.y);
+    const b = Math.atan2(p2.x - center.x, p2.y - center.y);
+
+    return b - a;
+  });
+};
+```
+
+I'll assume that's the correct way unless I see any bugs.
+
+I need to find a way to check if a point is inside a polygon. I tried [this one](https://stackoverflow.com/questions/1119627/how-to-test-if-a-point-is-inside-of-a-convex-polygon-in-2d-integer-coordinates#answer-1119673) out, but it looks like I made a mistake, and it doesn't seem to work. I also tried [this one](https://stackoverflow.com/questions/217578/how-can-i-determine-whether-a-2d-point-is-within-a-polygon#answer-2922778), but it doesn't work either.
