@@ -13,6 +13,21 @@ body {
 }
 
 .container {
+  --x: calc(100% - 310px);
+  --y: 10px;
   position: fixed;
+  top: var(--y);
+  left: var(--x);
   outline: 2px solid gray;
+}
+
+.container .navbar {
+  background: orange;
+  display: flex;
+}
+
+.container .navbar .handle {
+  background-color: blue;
+  width: 30px;
+  height: 20px;
 }

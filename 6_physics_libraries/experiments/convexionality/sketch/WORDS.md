@@ -417,3 +417,7 @@ Polygon.reorder = function (polygon) {
 I'll assume that's the correct way unless I see any bugs.
 
 I need to find a way to check if a point is inside a polygon. I tried [this one](https://stackoverflow.com/questions/1119627/how-to-test-if-a-point-is-inside-of-a-convex-polygon-in-2d-integer-coordinates#answer-1119673) out, but it looks like I made a mistake, and it doesn't seem to work. I also tried [this one](https://stackoverflow.com/questions/217578/how-can-i-determine-whether-a-2d-point-is-within-a-polygon#answer-2922778), but it doesn't work either.
+
+---
+
+Looks like in both cases I forgot the polygon variable represented an object rather than an array.

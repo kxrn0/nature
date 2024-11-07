@@ -20,6 +20,11 @@
         min-height: 100vh;
       }
 
+      canvas {
+        background-color: rgb(6, 2, 32);
+        border: 1px solid rgb(236, 141, 141);
+      }
+
       .controls {
         background-color: rgba(183, 170, 157, 0.5);
         color: white;
@@ -35,7 +40,7 @@
     </style>
   </head>
   <body>
-    <canvas></canvas>
+    <canvas width="900" height="600"></canvas>
     <div class="controls">
       <label>
         <span>move polygon</span>
@@ -51,7 +56,7 @@
     </div>
     <!-- is_point_in_polygon -->
     <script>
-      function fun(point, vertices) {
+      function is_point_in_polygon(point, vertices) {
         let c;
 
         c = false;
@@ -68,46 +73,6 @@
         }
 
         return c;
-      }
-
-      const LEFT = "LEFT";
-      const RIGHT = "RIGHT";
-
-      function v_sub(a, b) {
-        return { x: a.x - b.x, y: a.y - b.y };
-      }
-
-      function cosine_sign(a, b) {
-        return a.x * b.y - a.y * b.x;
-      }
-
-      function get_side(a, b) {
-        const sign = cosine_sign(a, b);
-
-        if (sign < 0) return LEFT;
-        if (sign > 0) return RIGHT;
-
-        return null;
-      }
-
-      function is_point_in_convex_polygon(point, polygon) {
-        let prevSide;
-
-        prevSide = null;
-
-        for (let i = 0; i < polygon.length; i++) {
-          const a = vertices[i];
-          const b = vertices[(i + 1) % (polygon.length - 1)];
-          const affineSegment = v_sub(b, a);
-          const affinePoint = v_sub(point, a);
-          const currentSide = get_side(affineSegment, affinePoint);
-
-          if (!currentSide) return false;
-          else if (!prevSide) prevSide = currentSide;
-          else if (prevSide !== currentSide) return false;
-        }
-
-        return true;
       }
     </script>
     <!-- is_point_in_circle -->
@@ -173,6 +138,13 @@
         context.fill();
 
         draw_path(context, this.vertices, this.strokeStyle, 5, true);
+      };
+
+      Polygon.prototype.move = function (vector) {
+        for (let vertex of this.vertices) {
+          vertex.x += vector.x;
+          vertex.y += vector.y;
+        }
       };
 
       Polygon.is_convex = function (polygon) {
@@ -250,40 +222,45 @@
       const context = canvas.getContext("2d");
       const polygons = [];
       const mouse = { x: 0, y: 0 };
-      let tempVertices, isBuilding, isAdding, pot, isClose, isInside;
+      const STATES = { MOVING: "MOVING", ADDING: "ADDING" };
+      const moveState = { polygon: null, prev: { x: 0, y: 0 } };
+      const addState = { vertices: [], isBuilding: false, isClose: false };
+      let state;
 
       function anime() {
         context.clearRect(0, 0, canvas.width, canvas.height);
 
         for (let polygon of polygons) polygon.draw(context);
 
-        if (isBuilding) {
-          if (tempVertices.length >= 1) {
-            draw_path(context, [...tempVertices, pot], "lightgray", 1, false);
+        if (addState.isBuilding) {
+          if (addState.vertices.length >= 1) {
+            draw_path(
+              context,
+              [...addState.vertices, mouse],
+              "lightgray",
+              1,
+              false
+            );
 
-            for (let i = 0; i < tempVertices.length; i++)
-              draw_circle(context, tempVertices[i], 5, "gray");
+            for (let vertex of addState.vertices)
+              draw_circle(context, vertex, 5, "gray");
           }
 
-          if (isClose)
+          if (addState.isClose)
             draw_circle(
               context,
-              tempVertices[0],
+              addState.vertices[0],
               20,
               "rgb(100, 255, 200, .25)"
             );
-        }
-
-        if (isInside) {
-          draw_circle(context, mouse, 10, "rgb(200, 0, 255)");
         }
 
         requestAnimationFrame(anime);
       }
 
       function reset() {
-        tempVertices = [];
-        isBuilding = false;
+        addState.vertices = [];
+        addState.isBuilding = false;
       }
 
       function init_controls() {
@@ -293,35 +270,29 @@
 
         resetButton.addEventListener("click", reset);
 
-        radioAdd.addEventListener("change", () => (isAdding = true));
+        radioAdd.addEventListener("change", () => {
+          state = STATES.ADDING;
+          moveState.polygon = null;
+        });
 
         radioMove.addEventListener("change", () => {
-          isAdding = false;
+          state = STATES.MOVING;
           reset();
         });
 
-        canvas.addEventListener("click", (event) => {
-          if (isAdding) {
-            const vertex = { x: event.offsetX, y: event.offsetY };
-            const center = tempVertices[0];
-            const circle = { center: center, radius: 10 };
+        canvas.addEventListener("mousedown", (event) => {
+          if (state !== STATES.MOVING) return;
 
-            if (
-              center &&
-              is_point_in_circle(vertex, circle) &&
-              tempVertices.length >= 2
-            ) {
-              const polygon = new Polygon(tempVertices);
+          moveState.prev.x = mouse.x;
+          moveState.prev.y = mouse.y;
 
-              polygons.push(polygon);
-              reset();
-            } else {
-              isBuilding = true;
-              tempVertices.push(vertex);
-              pot.x = vertex.x;
-              pot.y = vertex.y;
+          for (let i = polygons.length - 1; i >= 0; i--) {
+            const polygon = polygons[i];
+
+            if (is_point_in_polygon(mouse, polygon.vertices)) {
+              moveState.polygon = polygon;
+              break;
             }
-          } else {
           }
         });
 
@@ -329,36 +300,58 @@
           mouse.x = event.offsetX;
           mouse.y = event.offsetY;
 
-          if (isAdding && isBuilding) {
-            const circle = { center: tempVertices[0], radius: 10 };
+          if (state === STATES.ADDING) {
+            if (!addState.isBuilding) return;
 
-            pot.x = event.offsetX;
-            pot.y = event.offsetY;
+            const circle = { center: addState.vertices[0], radius: 10 };
 
-            if (tempVertices.length > 2 && is_point_in_circle(pot, circle))
-              isClose = true;
-            else isClose = false;
-          } else {
-          }
+            if (
+              addState.vertices.length > 2 &&
+              is_point_in_circle(mouse, circle)
+            )
+              addState.isClose = true;
+            else addState.isClose = false;
+          } else if (state === STATES.MOVING) {
+            if (!moveState.polygon) return;
 
-          isInside = polygons.some((p) => fun(mouse, p));
+            const vector = {
+              x: mouse.x - moveState.prev.x,
+              y: mouse.y - moveState.prev.y,
+            };
+
+            moveState.polygon.move(vector);
+            moveState.prev.x = mouse.x;
+            moveState.prev.y = mouse.y;
+          } else throw new Error("fuck!");
         });
 
-        // window.addEventListener("mousemove", (event) => {
-        //   mouse.x = event.clientX;
-        //   mouse.y = event.clientY;
-        // });
+        canvas.addEventListener("mouseup", () => {
+          if (state === STATES.ADDING) {
+            const vertex = { x: event.offsetX, y: event.offsetY };
+            const center = addState.vertices[0];
+            const circle = { center: center, radius: 10 };
+
+            if (
+              center &&
+              is_point_in_circle(vertex, circle) &&
+              addState.vertices.length > 2
+            ) {
+              const polygon = new Polygon(addState.vertices);
+
+              polygons.push(polygon);
+              reset();
+            } else {
+              addState.isBuilding = true;
+              addState.vertices.push(vertex);
+            }
+          } else if (state === STATES.MOVING) {
+            moveState.polygon = null;
+          } else throw new Error("fuck!");
+        });
       }
 
       function init() {
-        canvas.width = innerWidth;
-        canvas.height = innerHeight;
-
-        tempVertices = [];
-        isBuilding = false;
-        isAdding = true;
-        pot = { x: 0, y: 0 };
-        isInside = false;
+        state = STATES.ADDING;
 
         init_controls();
 

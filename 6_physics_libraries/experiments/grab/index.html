@@ -110,8 +110,8 @@
 
         box.corner = { x, y };
 
-        container.style.setProperty("--x", `${xf}px`);
-        container.style.setProperty("--y", `${yf}px`);
+        box.element.style.setProperty("--x", `${xf}px`);
+        box.element.style.setProperty("--y", `${yf}px`);
       });
 
       window.addEventListener("mouseup", () => (box.isBeingDragged = false));
