@@ -12,22 +12,32 @@ body {
   min-height: 100vh;
 }
 
-.container {
+.shapes-container {
+  background-color: orange;
+  position: fixed;
+  top: 10px;
+  left: 10px;
+}
+
+.draw-container {
   --x: calc(100% - 310px);
   --y: 10px;
+  background-color: purple;
   position: fixed;
   top: var(--y);
   left: var(--x);
   outline: 2px solid gray;
 }
 
-.container .navbar {
+.draw-container .navbar {
   background: orange;
   display: flex;
 }
 
-.container .navbar .handle {
-  background-color: blue;
-  width: 30px;
-  height: 20px;
+.draw-container .navbar .handle {
+  background-color: skyblue;
+}
+
+.draw-container canvas.hidden {
+  display: none;
 }

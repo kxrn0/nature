@@ -1,30 +1,73 @@
 import Matter from "matter-js";
-import is_point_in_rect from "./utils/is_point_in_rect";
+import is_point_in_rect from "./utils/geometry/is_point_in_rect";
+import is_point_in_circle from "./utils/geometry/is_point_in_circle";
+import fill_circle from "./utils/drawing/fill_circle";
+import stroke_path from "./utils/drawing/stroke_path";
+import fill_path from "./utils/drawing/fill_path";
+import is_convex from "./utils/geometry/is_convex";
+import reorder from "./utils/geometry/reorder";
 import "./style.css";
 
 const mainCanvas = document.querySelector("#main-canvas") as HTMLCanvasElement;
 const mainContext = mainCanvas.getContext("2d")!;
-const drawCanvas = document.querySelector(
+const drawContainer = document.querySelector(
+  ".draw-container"
+) as HTMLDivElement;
+const drawCanvas = drawContainer.querySelector(
   "#drawing-canvas"
 ) as HTMLCanvasElement;
 const drawContext = drawCanvas.getContext("2d")!;
 const drawStuff = {
   vertices: [] as Matter.Vector[],
-  isBuilding: false,
   isClose: false,
+  isValid: false,
+  fillStyle: "lightcoral",
   mouse: Matter.Vector.create(0, 0),
+  reset: function () {
+    this.vertices = [];
+    this.state = this.STATES.IDLE;
+    this.isClose = false;
+  },
+  state: "IDLE",
+  STATES: { IDLE: "IDLE", BUILDING: "BUILDING", READY: "READY" },
+  COLORS: { VALID: "greenyellow", INVALID: "lightcoral" },
 };
+
+const shapes: Matter.Vector[] = [];
 const polygons = [];
 
 function anime() {
   mainContext.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
   drawContext.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
 
+  if (drawStuff.state === drawStuff.STATES.BUILDING) {
+    if (drawStuff.vertices.length >= 1)
+      stroke_path(
+        drawContext,
+        [...drawStuff.vertices, drawStuff.mouse],
+        "lightgray",
+        1,
+        false
+      );
+
+    for (let vertex of drawStuff.vertices)
+      fill_circle(drawContext, vertex, 5, "gray");
+
+    if (drawStuff.isClose)
+      fill_circle(
+        drawContext,
+        drawStuff.vertices[0],
+        20,
+        "rgb(100, 255, 200, .25)"
+      );
+  } else if (drawStuff.state === drawStuff.STATES.READY) {
+    fill_path(drawContext, drawStuff.vertices, drawStuff.fillStyle);
+  }
+
   requestAnimationFrame(anime);
 }
 
-function init_draw_canvas() {
-  const drawContainer = document.querySelector(".container") as HTMLDivElement;
+function set_up_drag_functionality() {
   const drawRekt = drawContainer.getBoundingClientRect();
   const handle = drawContainer.querySelector(".handle")!;
   const handleRekt = handle.getBoundingClientRect();
@@ -42,11 +85,6 @@ function init_draw_canvas() {
     isBeingDragged: false,
     element: drawContainer,
   };
-
-  window.addEventListener("mousemove", (event) => {
-    drawStuff.mouse.x = event.offsetX;
-    drawStuff.mouse.y = event.offsetY;
-  });
 
   window.addEventListener("mousedown", (event) => {
     const point = Matter.Vector.create(event.clientX, event.clientY);
@@ -80,11 +118,85 @@ function init_draw_canvas() {
   window.addEventListener("mouseup", () => (box.isBeingDragged = false));
 }
 
+function set_up_draw_functionality() {
+  const resetButton = drawContainer.querySelector(".reset-button")!;
+
+  resetButton.addEventListener("click", () => drawStuff.reset());
+
+  drawCanvas.addEventListener("mousemove", (event) => {
+    if (drawStuff.state !== drawStuff.STATES.BUILDING) return;
+
+    drawStuff.mouse.x = event.offsetX;
+    drawStuff.mouse.y = event.offsetY;
+
+    const point = drawStuff.mouse;
+    const center = drawStuff.vertices[0];
+    const radius = 10;
+
+    drawStuff.isClose =
+      drawStuff.vertices.length > 2 &&
+      is_point_in_circle(point, center, radius);
+  });
+
+  drawCanvas.addEventListener("click", (event) => {
+    if (drawStuff.state === drawStuff.STATES.READY) return;
+
+    const vertex = Matter.Vector.create(event.offsetX, event.offsetY);
+    const center = drawStuff.vertices[0];
+    const radius = 10;
+    const create =
+      center &&
+      drawStuff.vertices.length > 2 &&
+      is_point_in_circle(vertex, center, radius);
+
+    if (create) {
+      const isValid = is_convex(drawStuff.vertices);
+
+      if (isValid) {
+        drawStuff.fillStyle = drawStuff.COLORS.VALID;
+
+        reorder(drawStuff.vertices);
+      } else drawStuff.fillStyle = drawStuff.COLORS.INVALID;
+
+      drawStuff.state = drawStuff.STATES.READY;
+    } else {
+      drawStuff.state = drawStuff.STATES.BUILDING;
+      drawStuff.vertices.push(vertex);
+    }
+  });
+}
+
+function set_up_toggle() {
+  const label = drawContainer.querySelector(".toggle-label")!;
+  const span = label.querySelector("span") as HTMLSpanElement;
+  const input = label.querySelector(
+    "input[type='checkbox']"
+  ) as HTMLInputElement;
+
+  input.addEventListener("change", () => {
+    const text = input.checked ? "open" : "close";
+
+    span.innerText = text;
+    drawCanvas.classList.toggle("hidden");
+  });
+}
+
+function set_up_draw_stuff() {
+  window.addEventListener("mousemove", (event) => {
+    drawStuff.mouse.x = event.offsetX;
+    drawStuff.mouse.y = event.offsetY;
+  });
+
+  set_up_drag_functionality();
+  set_up_toggle();
+  set_up_draw_functionality();
+}
+
 function init() {
   mainCanvas.width = innerWidth;
   mainCanvas.height = innerHeight;
 
-  init_draw_canvas();
+  set_up_draw_stuff();
 
   requestAnimationFrame(anime);
 }
