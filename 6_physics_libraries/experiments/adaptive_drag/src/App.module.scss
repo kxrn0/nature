@@ -1,0 +1,31 @@
+.app {
+  .card {
+    background: orange;
+    border: 2px solid black;
+    border-radius: 5px;
+    padding: 10px;
+
+    .nav {
+      display: flex;
+      gap: 10px;
+
+      .handle {
+        background-color: blue;
+        width: 30px;
+        height: 20px;
+      }
+    }
+
+    .content {
+      background-color: red;
+      color: azure;
+      width: 350px;
+      height: 300px;
+      display: none;
+
+      &.open {
+        display: block;
+      }
+    }
+  }
+}
