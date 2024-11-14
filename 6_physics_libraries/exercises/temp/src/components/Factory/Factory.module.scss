@@ -1,0 +1,17 @@
+.factory {
+  background-color: rgb(128, 79, 180);
+
+  .handle {
+    background-color: blue;
+    width: 30px;
+    height: 20px;
+  }
+
+  .canvas {
+    display: none;
+
+    &.open {
+      display: block;
+    }
+  }
+}

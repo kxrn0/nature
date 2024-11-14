@@ -20,7 +20,6 @@ const drawContext = drawCanvas.getContext("2d")!;
 const drawStuff = {
   vertices: [] as Matter.Vector[],
   isClose: false,
-  isValid: false,
   fillStyle: "lightcoral",
   mouse: Matter.Vector.create(0, 0),
   reset: function () {
@@ -123,11 +122,8 @@ function set_up_draw_functionality() {
 
   resetButton.addEventListener("click", () => drawStuff.reset());
 
-  drawCanvas.addEventListener("mousemove", (event) => {
+  drawCanvas.addEventListener("mousemove", () => {
     if (drawStuff.state !== drawStuff.STATES.BUILDING) return;
-
-    drawStuff.mouse.x = event.offsetX;
-    drawStuff.mouse.y = event.offsetY;
 
     const point = drawStuff.mouse;
     const center = drawStuff.vertices[0];

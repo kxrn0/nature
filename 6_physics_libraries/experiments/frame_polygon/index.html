@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Frame Polygon</title>
+    <style>
+      img {
+        border: 1px solid black;
+      }
+    </style>
+  </head>
+  <body>
+    <script>
+      function find_bb_dimensions(vertices) {
+        const xMin = Math.min(...vertices.map((v) => v.x));
+        const xMax = Math.max(...vertices.map((v) => v.x));
+        const yMin = Math.min(...vertices.map((v) => v.y));
+        const yMax = Math.max(...vertices.map((v) => v.y));
+        const width = xMax - xMin;
+        const height = yMax - yMin;
+        const center = { x: xMin + width / 2, y: yMin + height / 2 };
+        const box = {
+          width,
+          height,
+          center,
+        };
+
+        return box;
+      }
+
+      function frame_polygon(vertices, width, height, fillStyle) {
+        const canvas = document.createElement("canvas");
+        const context = canvas.getContext("2d");
+        const box = find_bb_dimensions(vertices);
+        const boxLongest = Math.max(box.width, box.height);
+        const canvasShortest = Math.min(width, height);
+        const scale = canvasShortest / boxLongest;
+        const centered = vertices.map((v) => ({
+          x: (v.x - box.center.x) * scale,
+          y: (v.y - box.center.y) * scale,
+        }));
+
+        canvas.width = width;
+        canvas.height = height;
+
+        context.beginPath();
+        context.fillStyle = fillStyle;
+        context.translate(width / 2, height / 2);
+        context.moveTo(centered[0].x, centered[0].y);
+
+        for (let i = 1; i < centered.length; i++)
+          context.lineTo(centered[i].x, centered[i].y);
+
+        context.fill();
+
+        return canvas.toDataURL();
+      }
+    </script>
+    <script>
+      const vertices = [
+        { x: 1, y: 3 },
+        { x: 4, y: -2 },
+        { x: 5, y: 6 },
+        { x: 3, y: 8 },
+        { x: 1, y: 5 },
+      ];
+      const src = frame_polygon(vertices, 50, 50, "orange");
+      const img = document.createElement("img");
+
+      img.src = src;
+      document.body.append(img);
+    </script>
+  </body>
+</html>

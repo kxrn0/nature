@@ -9,6 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@types/matter-js": "^0.19.7",
+    "matter-js": "^0.20.0",
     "normalize.css": "^8.0.1",
     "solid-js": "^1.9.3"
   },
