@@ -1,19 +1,48 @@
 import { createSignal } from "solid-js";
-import styles from "./App.module.scss";
-import Factory from "./components/Factory/Factory";
 import { createStore } from "solid-js/store";
-import Matter from "matter-js";
+import { Polygon } from "./types";
+import Menu from "./components/Menu/Menu";
+import Factory from "./components/Factory/Factory";
+import styles from "./App.module.scss";
+import World from "./components/World/World";
 
 function App() {
-  const [shapes, setShapes] = createStore<Matter.Vector[][]>([]);
+  const [polygons, setPolygons] = createStore<Polygon[]>([]);
+  const [currentPolygon, setCurrentPolygon] = createSignal<Polygon>();
 
-  function add_shape(shape: Matter.Vector[]) {
-    setShapes(shapes.length, shape);
+  function add_polygon(polygon: Polygon) {
+    setPolygons(polygons.length, polygon);
+
+    if (!currentPolygon()) setCurrentPolygon(polygon);
+  }
+
+  function remove_polygon(id: string) {
+    let index;
+
+    index = -1;
+
+    if (currentPolygon()?.id === id) {
+      index = polygons.findIndex((p) => p.id === id);
+
+      if (index !== -1)
+        index = Math.max(0, Math.min(index, polygons.length - 2));
+    }
+
+    setPolygons(polygons.filter((p) => p.id !== id));
+
+    if (index !== -1) setCurrentPolygon(polygons[index]);
   }
 
   return (
     <div class={styles["app"]}>
-      <Factory add_shape={(vs) => console.log(vs)} />
+      <World currentPolygon={currentPolygon()} />
+      <Menu
+        polygons={polygons}
+        currentPolygon={currentPolygon()}
+        set_polygon={(p: Polygon) => setCurrentPolygon(p)}
+        remove_polygon={remove_polygon}
+      />
+      <Factory add_polygon={add_polygon} />
     </div>
   );
 }

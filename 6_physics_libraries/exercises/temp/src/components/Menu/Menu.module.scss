@@ -1,0 +1,65 @@
+.menu {
+  background-color: indigo;
+  color: azure;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 5px;
+
+  .nav {
+    display: flex;
+    gap: 10px;
+
+    .title {
+      font-size: 20px;
+    }
+  }
+
+  .content {
+    display: none;
+
+    &.open {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .preview {
+      .image-container {
+        border: 2px solid yellow;
+        display: grid;
+        place-items: center;
+        width: 300px;
+        height: 300px;
+      }
+    }
+
+    .choices {
+      .list {
+        border: 2px solid yellow;
+        display: flex;
+        flex-wrap: wrap;
+        width: 325px;
+        height: 325px;
+        overflow-y: scroll;
+
+        .choice {
+          border: 1px solid darkslategray;
+          position: relative;
+          width: 100px;
+          height: 100px;
+
+          &.selected {
+            border: 3px solid orange;
+          }
+
+          .delete {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+          }
+        }
+      }
+    }
+  }
+}

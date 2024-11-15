@@ -10,7 +10,6 @@ type Props = {
   includeHandle: boolean;
   children: any;
 };
-
 export default function Draggable(props: Props) {
   const [zIndex, setZIndex] = createSignal(0);
   const { position, setPosition, start_drag, update_position, stop_drag } =
@@ -81,7 +80,9 @@ export default function Draggable(props: Props) {
 
   onMount(() => {
     window.addEventListener("mousedown", handle_mouse_down);
+
     window.addEventListener("mousemove", handle_mouse_move);
+
     window.addEventListener("mouseup", stop_drag);
   });
 
@@ -89,7 +90,9 @@ export default function Draggable(props: Props) {
     observer.disconnect();
 
     window.removeEventListener("mousedown", handle_mouse_down);
+
     window.removeEventListener("mousemove", handle_mouse_move);
+    
     window.removeEventListener("mouseup", stop_drag);
   });
 

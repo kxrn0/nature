@@ -1,14 +1,19 @@
 .factory {
-  background-color: rgb(128, 79, 180);
+  background-color: indigo;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 5px;
 
-  .handle {
-    background-color: blue;
-    width: 30px;
-    height: 20px;
+  .nav {
+    display: flex;
+    align-items: center;
+    gap: 10px;
   }
 
   .canvas {
     display: none;
+    border: 2px solid yellow;
 
     &.open {
       display: block;

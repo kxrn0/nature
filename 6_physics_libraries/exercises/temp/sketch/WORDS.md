@@ -70,4 +70,164 @@ function frame_polygon(vertices, width, height, fillStyle) {
 }
 ```
 
-I can get the images. Now what? As pointed out above, since the polygons are fit on a 100x100 image, they all look like they are at the same scale. I could add a footnote indicating the real dimensions of the bounding box, or I could add an area above the list of polygons to preview the real size, then I'd have to create two images, a thumbnail, and one for the actual size. I'll do the later.
+I can get the images. Now what? As pointed out above, since the polygons are fit on a 100x100 image, they all look like they are at the same scale. I could add a footnote indicating the real dimensions of the bounding box, or I could add an area above the list of polygons to preview the real size, then I'd have to create two images, a thumbnail, and one for the actual size. I'll do the later. I could use the code I have so far to do that, but I think it would be a bit repetitive.
+
+What do I want? I have a set of vertices which form a polygon. I want to draw the polygon twice and get the images. In the first case I can use the canvas I already have to produce the image I want, in the second case I can use a function like `frame_polygon` to get the image I want.
+
+When removing a polygon, if the polygon being removed is the one currently selected, I want to set the current to the previous one, so if the polygons are
+
+```
+[A, B, C, D, E]
+```
+
+and the current one is `C`, then removing `C` would result in `B` being set to the current one. Or should it be in the opposite direction? I think it should. Setting the current polygon to the previous one moves the position of the current polygon to the beginning of the array, while setting it to the next one, which will take the place of the removed one, keeps the position of the current polygon the same as long as the position fits in the size of the array. So if the polygon to be removed is the one currently being selected, the current polygon title will be given to the polygon that would take the position of the removed polygon, the core of the logic would be similar to this:
+
+```javascript
+function update(polygons, current, remove) {
+  let index;
+
+  index = -1;
+
+  if (current === remove) {
+    index = polygons.findIndex((p) => p === remove);
+
+    if (index !== -1) index = Math.max(0, Math.min(index, polygons.length - 2));
+  }
+
+  polygons = polygons.filter((p) => p !== remove);
+
+  if (index !== -1) current = polygons[index] || null;
+
+  return {
+    polygons,
+    current,
+  };
+}
+```
+
+After some tests
+
+```javascript
+function arreq(a, b) {
+  if (a.length !== b.length) return false;
+
+  for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return false;
+  return true;
+}
+
+function test(p) {
+  const { polygons, current } = update(p.polygons, p.current, p.remove);
+
+  console.log("testing");
+  console.log(JSON.stringify(p));
+
+  if (arreq(polygons, p.expectedPolygons) && current === p.expectedCurrent)
+    console.log(
+      "%cpassed",
+      "color: greenyellow; font-weight: bold; font-size: 20px;"
+    );
+  else
+    console.log("%cfailed", "color: red; font-weight: bold; font-size: 20px");
+
+  console.log(current);
+
+  console.log(
+    JSON.stringify({
+      polygons,
+      current,
+    })
+  );
+
+  console.log("---------------");
+}
+
+const p1 = {
+  polygons: ["a", "b", "c", "d", "e"],
+  current: "c",
+  remove: "d",
+  expectedPolygons: ["a", "b", "c", "e"],
+  expectedCurrent: "c",
+};
+const p2 = {
+  polygons: ["a", "b", "c", "d", "e"],
+  current: "c",
+  remove: "c",
+  expectedPolygons: ["a", "b", "d", "e"],
+  expectedCurrent: "d",
+};
+const p3 = {
+  polygons: ["a", "b", "c", "d", "e"],
+  current: "c",
+  remove: "e",
+  expectedPolygons: ["a", "b", "c", "d"],
+  expectedCurrent: "c",
+};
+const p4 = {
+  polygons: ["a", "b", "c", "d", "e"],
+  current: "e",
+  remove: "e",
+  expectedPolygons: ["a", "b", "c", "d"],
+  expectedCurrent: "d",
+};
+const p5 = {
+  polygons: ["a", "b", "c", "d", "e"],
+  current: "a",
+  remove: "a",
+  expectedPolygons: ["b", "c", "d", "e"],
+  expectedCurrent: "b",
+};
+const p6 = {
+  polygons: ["a", "b", "c", "d", "e"],
+  current: "b",
+  remove: "a",
+  expectedPolygons: ["b", "c", "d", "e"],
+  expectedCurrent: "b",
+};
+const p7 = {
+  polygons: ["a", "b"],
+  current: "a",
+  remove: "a",
+  expectedPolygons: ["b"],
+  expectedCurrent: "b",
+};
+const p8 = {
+  polygons: ["a", "b"],
+  current: "b",
+  remove: "b",
+  expectedPolygons: ["a"],
+  expectedCurrent: "a",
+};
+const p9 = {
+  polygons: ["a", "b"],
+  current: "a",
+  remove: "b",
+  expectedPolygons: ["a"],
+  expectedCurrent: "a",
+};
+const p10 = {
+  polygons: ["a", "b"],
+  current: "b",
+  remove: "a",
+  expectedPolygons: ["b"],
+  expectedCurrent: "b",
+};
+const p11 = {
+  polygons: ["a"],
+  current: "a",
+  remove: "a",
+  expectedPolygons: [],
+  expectedCurrent: null,
+};
+const p12 = {
+  polygons: [],
+  current: null,
+  remove: "a",
+  expectedPolygons: [],
+  expectedCurrent: null,
+};
+const ps = [p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12];
+
+ps.forEach((p) => test(p));
+```
+
+I'm inclined to believe that this function is correct.

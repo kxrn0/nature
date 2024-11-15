@@ -46,7 +46,9 @@ export function useDraggable(initialPosition: Point) {
     setPosition({ x, y });
   }
 
-  const stop_drag = () => setIsBeingDragged(false);
+  function stop_drag() {
+    setIsBeingDragged(false);
+  }
 
   return {
     position,

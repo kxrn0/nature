@@ -1,16 +1,19 @@
 import { createSignal, onCleanup, onMount } from "solid-js";
-import Matter from "matter-js";
+import { Polygon } from "../../types";
+import useDrawingState, { STATES, SNAP_RADIUS } from "./hooks/useDrawingState";
+import Draggable from "../Draggable/Draggable";
 import stroke_path from "../../utils/drawing/stroke_path";
 import fill_circle from "../../utils/drawing/fill_circle";
 import fill_path from "../../utils/drawing/fill_path";
-import Draggable from "../Draggable/Draggable";
+import frame_polygon from "../../utils/drawing/frame_polygon";
 import styles from "./Factory.module.scss";
-import useDrawingState, { STATES, SNAP_RADIUS } from "./hooks/useDrawingState";
+import find_bb_dimensions from "../../utils/geometry/find_bb_dimensions";
+import Grab from "../../Icons/Grab";
 
 const COLORS = { VALID: "greenyellow", INVALID: "lightcoral" };
 
 type Props = {
-  add_shape: (vertices: Matter.Vector[]) => void;
+  add_polygon: (polygon: Polygon) => void;
 };
 
 export default function Factory(props: Props) {
@@ -26,7 +29,6 @@ export default function Factory(props: Props) {
     handle_mouse_move,
     handle_click,
   } = useDrawingState();
-
   const [animeId, setAnimeId] = createSignal(-1);
   let canvas!: HTMLCanvasElement;
 
@@ -34,8 +36,26 @@ export default function Factory(props: Props) {
     setIsOpen((prev) => !prev);
   }
 
-  function add_shape() {
-    props.add_shape(vertices());
+  function add_polygon() {
+    const { width, height } = find_bb_dimensions(vertices());
+    const originalSin = Math.max(width, height);
+    const original = frame_polygon(
+      vertices(),
+      originalSin,
+      originalSin,
+      COLORS.VALID
+    );
+    const smallSize = 100;
+    const thumbnail = frame_polygon(
+      vertices(),
+      smallSize,
+      smallSize,
+      COLORS.VALID
+    );
+    const id = crypto.randomUUID();
+    const polygon = { vertices: [...vertices()], original, thumbnail, id };
+
+    props.add_polygon(polygon);
 
     reset();
   }
@@ -91,7 +111,9 @@ export default function Factory(props: Props) {
     cancelAnimationFrame(animeId());
 
     window.removeEventListener("mousemove", update_mouse);
+
     canvas.removeEventListener("mousemove", handle_mouse_move);
+
     canvas.removeEventListener("click", handle_click);
   });
 
@@ -103,12 +125,14 @@ export default function Factory(props: Props) {
       <div class={styles["factory"]}>
         <div class={styles["nav"]}>
           <button
-            onClick={add_shape}
-            disabled={state() !== STATES.READY && !isValid()}
+            onClick={add_polygon}
+            disabled={state() !== STATES.READY || !isValid()}
           >
             add shape
           </button>
-          <div class={`handle ${styles["handle"]}`}></div>
+          <div class="handle">
+            <Grab />
+          </div>
           <button onClick={reset}>clear</button>
           <button onClick={toggle_canvas}>{isOpen() ? "close" : "open"}</button>
         </div>
