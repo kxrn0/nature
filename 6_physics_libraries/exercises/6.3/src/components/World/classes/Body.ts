@@ -11,8 +11,11 @@ export default class Body {
 
     this.body = Matter.Bodies.fromVertices(x, y, [vertices], options);
 
-    Matter.Body.setVelocity(this.body, Matter.Vector.create(random(-5, 5), 0));
-    Matter.Body.setAngularVelocity(this.body, 0.1);
+    Matter.Body.setVelocity(
+      this.body,
+      Matter.Vector.create(random(-5, 5), random(-10, 0))
+    );
+    Matter.Body.setAngularVelocity(this.body, random(-0.1, 0.1));
   }
 
   draw(context: CanvasRenderingContext2D) {

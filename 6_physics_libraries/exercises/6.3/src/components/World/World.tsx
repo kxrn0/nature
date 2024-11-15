@@ -32,11 +32,14 @@ export default function World(props: Props) {
 
       for (let obstacle of obstacles) obstacle.draw(context);
 
-      for (let body of bodies) body.draw(context);
+      for (let i = bodies.length - 1; i >= 0; i--) {
+        bodies[i].draw(context);
 
-      bodies = bodies.filter(
-        (body) => body.body.position.y < innerHeight + 300
-      );
+        if (bodies[i].body.position.y > innerHeight + 300) {
+          Matter.Composite.remove(engine.world, bodies[i].body);
+          bodies.splice(i, 1);
+        }
+      }
 
       setAnimeId(requestAnimationFrame(anime));
     }
